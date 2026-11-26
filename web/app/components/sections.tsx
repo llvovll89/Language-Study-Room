@@ -1,6 +1,7 @@
-import { useState } from "react";
-import { DAKUON, PINYIN, SEION, YOON, type ConceptSection, type DialogSection, type Kana, type ListSection, type PatternSection, type Section as SectionT, type TableCell, type TableSection } from "@data";
+import { createContext, useContext, useState } from "react";
+import type { ConceptSection, DialogSection, Kana, ListSection, PatternSection, Section as SectionT, TableCell, TableSection } from "@data";
 import { speak } from "~/lib/speech";
+import { isChart, isConcept, type Charts } from "~/lib/sections";
 import { HTML_LANG, LANG_LABEL, type Foreign, type LangCode } from "~/lib/stages";
 import { useSettings } from "~/state/settings";
 import { ColHead, KoCell, LangCells, Pron } from "./cells";
@@ -84,13 +85,16 @@ const DataTable = ({ head, rows, visible }: { head: string[]; rows: TableCell[][
 
 /* ───────── 가나표 ───────── */
 const toKata = (s: string) => s.replace(/[ぁ-ゖ]/g, c => String.fromCharCode(c.charCodeAt(0) + 0x60));
-const KANA_GROUPS: [string, (Kana | null)[], 3 | 5][] = [
-  ["기본 글자 46자 (청음)", SEION, 5], ["점과 동그라미가 붙는 글자 (탁음, 반탁음)", DAKUON, 5], ["작은 ゃ ゅ ょ 조합 (요음)", YOON, 3],
-];
-export const KANA_TOTAL = SEION.filter(Boolean).length + DAKUON.length + YOON.length;
+/* 글자표 데이터는 그 글자표가 있는 단계 loader만 준다 */
+export const ChartsContext = createContext<Charts>({ kana: null, pinyin: null });
 
 const KanaChart = () => {
+  const { kana } = useContext(ChartsContext);
   const [kata, setKata] = useState(false);
+  if(!kana) return null;
+  const groups: [string, (Kana | null)[], 3 | 5][] = [
+    ["기본 글자 46자 (청음)", kana.seion, 5], ["점과 동그라미가 붙는 글자 (탁음, 반탁음)", kana.dakuon, 5], ["작은 ゃ ゅ ょ 조합 (요음)", kana.yoon, 3],
+  ];
   return (
     <>
       <div role="radiogroup" aria-label="글자 종류" className="inline-flex bg-sheet border border-line rounded-full p-0.5 gap-0.5 mb-2">
@@ -100,7 +104,7 @@ const KanaChart = () => {
         ))}
       </div>
       <div className={`kana-set ${kata ? "kata" : "hira"}`}>
-        {KANA_GROUPS.map(([h, list, cols]) => (
+        {groups.map(([h, list, cols]) => (
           <div key={h}>
             <h4 className="mt-6 mb-3 text-[13px] text-muted font-medium">{h}</h4>
             <div className={`grid gap-1.5 md:gap-2 ${cols === 3 ? "grid-cols-3" : "grid-cols-5"}`}>
@@ -124,7 +128,6 @@ const KanaChart = () => {
 };
 
 /* ───────── 병음표 ───────── */
-export const PINYIN_TOTAL = PINYIN.tones.length + PINYIN.initials.length + PINYIN.finals.length;
 const PyGrid = ({ list }: { list: [string, string, string, string][] }) => (
   <div className="py-grid grid gap-1.5 md:gap-2 grid-cols-[repeat(auto-fill,minmax(96px,1fr))]">
     {list.map(([p, ko, ch, chPy]) => (
@@ -137,8 +140,10 @@ const PyGrid = ({ list }: { list: [string, string, string, string][] }) => (
     ))}
   </div>
 );
-const PinyinChart = () => (
-  <>
+const PinyinChart = () => {
+  const { pinyin: PINYIN } = useContext(ChartsContext);
+  if(!PINYIN) return null;
+  return <>
     <h4 className="mt-6 mb-3 text-[13px] text-muted font-medium">성조 4개와 경성 (같은 ma도 높낮이에 따라 뜻이 다릅니다)</h4>
     <div className="tone-grid grid gap-2 grid-cols-[repeat(auto-fill,minmax(120px,1fr))] md:grid-cols-5">
       {PINYIN.tones.map(([ch, py, , pron, desc]) => (
@@ -153,18 +158,13 @@ const PinyinChart = () => (
     </div>
     <h4 className="mt-6 mb-3 text-[13px] text-muted font-medium">성모 (첫소리)</h4><PyGrid list={PINYIN.initials} />
     <h4 className="mt-6 mb-3 text-[13px] text-muted font-medium">운모 (모음 부분)</h4><PyGrid list={PINYIN.finals} />
-  </>
-);
+  </>;
+};
 
 /* ───────── 섹션 ───────── */
-export const isConcept = (s: SectionT) => s.type === "concept" || (s as TableSection).concept === true;
-export const isChart = (s: SectionT) => s.type === "kana" || s.type === "pinyin";
-export const countOf = (s: SectionT) =>
-  s.type === "kana" ? KANA_TOTAL : s.type === "pinyin" ? PINYIN_TOTAL :
-  ((s as TableSection).rows?.length || 0) + ((s as ListSection).items?.length || 0);
 
 export const KindBadge = ({ small = false }: { small?: boolean }) => (
-  <span className={`kind inline-block align-[.18em] mr-2 font-bold not-italic rounded-full bg-ink text-paper ${small ? "text-[10.5px] px-1.5 py-px mr-1.5" : "text-[11.5px] px-2 py-0.5"}`}>개념</span>
+  <span className={`kind inline-block shrink-0 whitespace-nowrap align-[.18em] mr-2 font-bold not-italic rounded-full bg-ink text-paper [.on_&]:bg-paper [.on_&]:text-ink ${small ? "text-[10.5px] px-1.5 py-px mr-1.5" : "text-[11.5px] px-2 py-0.5"}`}>개념</span>
 );
 
 const BULB = (
@@ -173,9 +173,8 @@ const BULB = (
   </svg>
 );
 
-export function Section({ sec, visible, query }: { sec: SectionT; visible: Visible; query: string }){
+export function Section({ sec, total, visible, query }: { sec: SectionT; total: number; visible: Visible; query: string }){
   const [jp, zh, en] = sec.sub.split(" / ");
-  const total = countOf(sec);
   const n = visible ? visible.filter(Boolean).length : total;
   const tableRows = (sec as TableSection).rows?.length || 0;
   const body =

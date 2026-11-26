@@ -1,9 +1,10 @@
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { Link, NavLink } from "react-router";
-import { STAGES, type Section as SectionT } from "@data";
-import { LANG_LABEL, SECTION_LANG, slugOf, type LangCode } from "~/lib/stages";
+import type { Section as SectionT } from "@data";
+import { isChart, isConcept } from "~/lib/sections";
+import { LANG_LABEL, SECTION_LANG, useStages, type LangCode } from "~/lib/stages";
 import { useSettings } from "~/state/settings";
-import { KindBadge, countOf, isChart, isConcept } from "./sections";
+import { KindBadge } from "./sections";
 
 export const VERSION = `v${__APP_VERSION__.replace(/\.0$/, "")}`;
 
@@ -15,27 +16,27 @@ const BrandMark = () => (
 );
 
 /* ───────── 단계 탭 (데스크톱 상단, 모바일 하단) ───────── */
-export const StageTabs = () => (
+export const StageTabs = () => { const stages = useStages(); return (
   <nav aria-label="학습 단계" className="stage-seg hidden md:inline-flex bg-sheet border border-line rounded-full p-[3px] gap-0.5">
-    {STAGES.map(st => (
-      <NavLink key={st.id} to={`/${slugOf(st)}`} aria-label={`${st.id}단계 ${st.name}`}
+    {stages.map(st => (
+      <NavLink key={st.id} to={`/${st.slug}`} aria-label={`${st.id}단계 ${st.name}`}
         className={({ isActive }) => `rounded-full px-4 min-h-[34px] text-sm font-medium flex gap-1.5 items-center whitespace-nowrap transition-colors ${isActive ? "bg-ink text-paper" : "text-muted hover:text-ink"}`}>
         <b className="font-bold tabular-nums">{st.id}</b><span>{st.short}</span>
       </NavLink>
     ))}
   </nav>
-);
+); };
 
-export const TabBar = () => (
+export const TabBar = () => { const stages = useStages(); return (
   <nav aria-label="학습 단계" className="tabbar md:hidden grid grid-cols-3 gap-1 fixed inset-x-0 bottom-0 z-40 px-2 pt-1.5 pb-[calc(6px+env(safe-area-inset-bottom))] bg-paper border-t border-line">
-    {STAGES.map(st => (
-      <NavLink key={st.id} to={`/${slugOf(st)}`} aria-label={`${st.id}단계 ${st.name}`}
+    {stages.map(st => (
+      <NavLink key={st.id} to={`/${st.slug}`} aria-label={`${st.id}단계 ${st.name}`}
         className={({ isActive }) => `flex flex-col items-center justify-center gap-0.5 min-h-[54px] rounded-xl text-xs font-medium ${isActive ? "text-ink bg-sheet ring-1 ring-line" : "text-muted"}`}>
         <b className="text-[19px] leading-tight font-bold">{st.id}</b><span>{st.short}</span>
       </NavLink>
     ))}
   </nav>
-);
+); };
 
 /* ───────── 보기 설정 패널 ───────── */
 function Chip({ on, lang, onClick, children, id }: { on: boolean; lang?: LangCode; onClick: () => void; children: ReactNode; id: string }){
@@ -124,7 +125,7 @@ export const SearchBox = ({ value, onChange }: { value: string; onChange: (v: st
 );
 
 /* ───────── 목차 ───────── */
-export function Toc({ stageId, sections, counts, active }: { stageId: number; sections: SectionT[]; counts: Record<string, number | null>; active: string }){
+export function Toc({ stageId, sections, counts, totals, active }: { stageId: number; sections: SectionT[]; counts: Record<string, number | null>; totals: Record<string, number>; active: string }){
   const { show } = useSettings();
   const ref = useRef<HTMLElement>(null);
   // 모바일 가로 칩 목록에서 현재 주제가 보이게 유지
@@ -147,8 +148,9 @@ export function Toc({ stageId, sections, counts, active }: { stageId: number; se
           <a key={sec.id} href={`#${sec.id}`} data-for={sec.id} aria-current={on ? "location" : undefined}
             className={`flex-none flex items-center gap-2 px-3.5 md:px-3 py-1.5 md:py-2 rounded-full md:rounded-[10px] border md:border-0 text-sm leading-snug whitespace-nowrap md:whitespace-normal ${on ? "on bg-ink text-paper border-ink" : "bg-sheet md:bg-transparent border-line text-ink-2 md:hover:bg-sheet"}`}>
             {isConcept(sec) && <KindBadge small />}
-            {sec.title}
-            <span className={`hidden md:inline ml-auto text-xs tabular-nums ${on ? "opacity-70" : "text-muted"}`}>{isChart(sec) ? `${countOf(sec)}자` : n ?? countOf(sec)}</span>
+            {/* 긴 제목은 제목만 줄바꿈되고 배지와 개수는 한 줄로 유지 */}
+            <span className="toc-t min-w-0">{sec.title}</span>
+            <span className={`hidden md:inline shrink-0 ml-auto text-xs tabular-nums ${on ? "opacity-70" : "text-muted"}`}>{isChart(sec) ? `${totals[sec.id]}자` : n ?? totals[sec.id]}</span>
           </a>
         );
       })}

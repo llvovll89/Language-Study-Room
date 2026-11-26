@@ -59,6 +59,7 @@
 
 ## 웹앱 작성 규칙
 - 반복되는 학습 카드 요소(칸, 엔트리, 표, 글자표)는 `app.css`의 짧은 component class를 씁니다. 페이지 레이아웃은 Tailwind utility로 씁니다.
+- 콘텐츠(`@data`) 값은 `app/lib/content.server.ts`에서만 import합니다. 컴포넌트에서는 loader 데이터를 쓰고, 클라이언트 번들에 데이터가 들어가지 않게 합니다 (type import는 괜찮음).
 - 발음 표기는 `tokenizePron` → `<Pron>` 컴포넌트로 그립니다. `dangerouslySetInnerHTML`은 쓰지 않습니다.
 - 새 경로를 추가하면 `react-router.config.ts`의 `prerender` 목록에도 넣습니다.
 - prerender HTML만으로 콘텐츠와 단계 이동 링크가 보여야 합니다. 설정 기능은 하이드레이션 이후 동작해도 됩니다.

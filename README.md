@@ -6,7 +6,9 @@
 
 외국어를 처음 배우는 사람도 읽을 수 있게, 모든 외국어 문장에 **한글 발음**과 **높낮이·속도 표기**를 붙였습니다.
 
-![version](https://img.shields.io/badge/version-v2.0.0-1B2433)
+### 🌐 [language-study-room.vercel.app](https://language-study-room.vercel.app/)
+
+![version](https://img.shields.io/badge/version-v2.0.1-1B2433)
 ![languages](https://img.shields.io/badge/languages-KO%20%7C%20JA%20%7C%20ZH%20%7C%20EN-1E7A66)
 ![stack](https://img.shields.io/badge/React%2019%20%C2%B7%20React%20Router%208%20%C2%B7%20Tailwind%204-TypeScript-B0651C)
 ![pwa](https://img.shields.io/badge/PWA-offline%20ready-1E7A66)
@@ -72,7 +74,7 @@
 </table>
 
 ## 🚀 빠른 시작
-**학습자 (사이트 이용):** 웹사이트에 접속하면 바로 쓸 수 있습니다. 가입이나 설치는 필요 없습니다. 🌐 주소는 공개 후 여기에 적습니다.
+**학습자 (사이트 이용):** 🌐 **[language-study-room.vercel.app](https://language-study-room.vercel.app/)**에 접속하면 바로 쓸 수 있습니다. 가입이나 설치는 필요 없습니다. 휴대폰에서 홈 화면에 추가하면 앱처럼 열리고, 인터넷 없이도 볼 수 있습니다.
 
 > `language-study.html` 파일만 받아서 열어도 오프라인으로 똑같이 동작합니다.
 
@@ -163,6 +165,7 @@ language-study/
 - **콘텐츠 단일 원본**: `data/`와 `lib/pron.mjs` 하나를 웹앱과 단일 HTML이 함께 씁니다. 콘텐츠는 한 번만 고치면 됩니다.
 - **Prerender 우선**: 웹앱의 모든 페이지는 빌드할 때 정적 HTML로 미리 만듭니다(React Router `ssr:false` + `prerender`). 그래서 첫 화면이 빠르고, 검색엔진과 JS 없는 환경에서도 내용이 보입니다.
 - **안전한 발음 렌더링**: 발음 표기는 토큰 트리(`tokenizePron`)로 그립니다. `innerHTML`은 쓰지 않습니다.
+- **페이지별 데이터**: 콘텐츠는 route `loader`(`content.server.ts`)에서만 읽어서, 각 페이지에는 그 단계 데이터만 들어갑니다. 클라이언트 JS 번들에는 콘텐츠가 없습니다.
 - **가벼운 HTML**: 반복되는 학습 카드 요소는 Tailwind `@layer components`의 짧은 class로 묶었습니다. 단계 페이지 HTML이 888KB에서 369KB로 줄었습니다 (gzip 42KB).
 - **단일 HTML은 런타임 의존성 0**: 프레임워크 없이 Node 내장 모듈만으로 빌드합니다. JS 없이도 되는 기능은 `checkbox`와 `:has()`로 만들었습니다.
 
@@ -202,6 +205,7 @@ language-study/
 
 | 버전 | 날짜 | 요약 |
 |---|---|---|
+| **v2.0.1** | 2026-11-26 | 성능: 콘텐츠를 route loader로 옮겨 JS 번들에서 데이터 제거 (202KB → 12KB), 단계 페이지는 그 단계 데이터만 포함 |
 | **v2.0** | 2026-11-26 | ⚛️ 웹앱 전환 (React 19 · React Router 8 prerender · TS · Tailwind 4), 영문 URL, PWA 오프라인, Vercel 배포 설정. 단일 HTML은 유지하고 콘텐츠는 공유 |
 | **v1.2** | 2026-11-26 | 기본/중급/심화로 재편, 단계마다 개념(문법) 섹션 13개 추가, 콘텐츠 약 350개 → 680개, 모바일 후리가나 줄바꿈 개선 |
 | **v1.1.1** | 2026-11-26 | README 추가, 테스트 확대 (단위 테스트 도입, 구조·접근성 E2E), 발음 변환 모듈 분리, 병음 ü 검색 개선 |

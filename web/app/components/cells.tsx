@@ -1,4 +1,4 @@
-import { useEffect, useState, type ReactNode } from "react";
+import { useState, type ReactNode } from "react";
 import { tokenizePron, type PronNode } from "@lib/pron.mjs";
 import type { EnField, JaField, ZhField } from "@data";
 import { speak } from "~/lib/speech";
@@ -39,10 +39,11 @@ export const Say = ({ text, lang }: { text: string; lang: Foreign }) => {
 /* ───────── 칸 공통: 가리기와 누르면 그 칸만 보기 ───────── */
 function Cell({ lang, children }: { lang: LangCode; children: (b: string) => ReactNode }){
   const { hide } = useSettings();
-  const [shown, setShown] = useState(false);
-  // 가리기 설정이 바뀌면 열어 둔 칸을 다시 닫는다
-  useEffect(() => setShown(false), [hide[lang]]);
   const hidable = hide[lang];
+  const [shown, setShown] = useState(false);
+  // 가리기 설정이 바뀌면 열어 둔 칸을 다시 닫는다 (칸이 1,000개 이상이라 effect 대신 렌더 중에 맞춘다)
+  const [prev, setPrev] = useState(hidable);
+  if(prev !== hidable){ setPrev(hidable); setShown(false); }
   return (
     <div className={`cell ${lang}${hidable ? " hidable" : ""}${shown ? " shown" : ""}`} data-l={LANG_LABEL[lang]}
       onClick={hidable ? () => setShown(s => !s) : undefined}>
