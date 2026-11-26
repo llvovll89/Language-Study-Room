@@ -16,6 +16,7 @@
 - 검색에 중국어, 병음(성조 기호 없이도), 한글 발음 포함
 - footer에 버전 표시
 - 버전 관리 문서 (`CLAUDE.md`, `CHANGELOG.md`, `docs/ROADMAP.md`) 추가
+- 예문 속 실제 이름을 가상 이름(김민수)으로 교체
 - 데이터 검증 스크립트 (`npm run validate`) 추가
 
 ### 변경
