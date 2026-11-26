@@ -2,6 +2,32 @@
 
 버전 규칙과 기록 방법은 `CLAUDE.md`를 참고하세요. 앞으로의 계획은 `docs/ROADMAP.md`에 있습니다.
 
+## v2.0.0 (2026-11-26)
+웹앱 전환. 기존 단일 HTML은 그대로 유지하고, 콘텐츠(`data/`)와 발음 로직(`lib/pron.mjs`)은 두 결과물이 함께 씁니다.
+
+### 추가
+- `web/` 웹앱
+  - React 19.3, React Router 8.5 framework mode(`ssr:false` + prerender), TypeScript 7, Tailwind CSS 4.3, Vite 8
+  - 경로: `/`(홈과 단계 카드, 이어 보기), `/basic`, `/intermediate`, `/advanced`
+  - 404 화면
+  - 기능 동등: 4개 언어, 한글 발음 표기, 검색, 가리기, 공부할 언어, 발음 표시, 발음 듣기, 개념 섹션, 가나표와 병음표, 목차 현재 위치, 모바일 하단 탭
+  - SEO: 단계별 `title`과 `description`
+- PWA
+  - manifest와 아이콘
+  - 서비스 워커(workbox): prerender HTML까지 precache해서 오프라인에서 모든 단계를 열 수 있음
+- Vercel 정적 배포 설정 (`web/vercel.json`)
+- `data/index.d.ts`(데이터 타입), `lib/pron.d.mts`
+- `lib/pron.mjs`의 `tokenizePron`: React에서 `innerHTML` 없이 발음 표기를 그림. 모든 데이터에서 `renderPron`과 결과가 같은지 단위 테스트로 확인
+- 테스트
+  - 웹앱 E2E 51회: iPhone, iPhone JS 끔, Chrome
+  - 범위: 오프라인 PWA, prerender HTML, 404 포함
+  - 단위 테스트 3개 추가 (총 22개)
+- npm workspaces와 scripts: `web:dev`, `web:build`, `web:test`, `test:all`
+
+### 변경
+- 로드맵: 여행, 문제·풀이, TOEIC을 v2.1~v2.3으로 옮김. 새 기능은 웹앱에만 추가
+- `CLAUDE.md`, README: 두 결과물 구조, 명령, 배포, 작성 규칙
+
 ## v1.2.0 (2026-11-26)
 ### 변경
 - 단계를 **기본 / 중급 / 심화**로 재편

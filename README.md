@@ -2,17 +2,18 @@
 
 # 🗣️ 네 언어 공부노트
 
-**한 문장을 한국어 · 日本語 · 中文 · English로 나란히 익히는 오프라인 공부노트**
+**한 문장을 한국어 · 日本語 · 中文 · English로 나란히 익히는 공부노트 (웹앱 + 오프라인 HTML)**
 
 외국어를 처음 배우는 사람도 읽을 수 있게, 모든 외국어 문장에 **한글 발음**과 **높낮이·속도 표기**를 붙였습니다.
 
-![version](https://img.shields.io/badge/version-v1.2.0-1B2433)
+![version](https://img.shields.io/badge/version-v2.0.0-1B2433)
 ![languages](https://img.shields.io/badge/languages-KO%20%7C%20JA%20%7C%20ZH%20%7C%20EN-1E7A66)
-![offline](https://img.shields.io/badge/offline-ready-B0651C)
+![stack](https://img.shields.io/badge/React%2019%20%C2%B7%20React%20Router%208%20%C2%B7%20Tailwind%204-TypeScript-B0651C)
+![pwa](https://img.shields.io/badge/PWA-offline%20ready-1E7A66)
 ![tests](https://img.shields.io/badge/tests-Playwright%20%2B%20node%3Atest-2F57A8)
 ![license](https://img.shields.io/badge/license-MIT-6A7383)
 
-<img src="docs/images/desktop-dialog.png" alt="데스크톱 화면: 카페 주문 대화를 4개 언어로 비교" width="820">
+<img src="docs/images/web-desktop-concept.png" alt="웹앱 데스크톱 화면: 개념 섹션을 4개 언어로 비교" width="820">
 
 </div>
 
@@ -36,7 +37,9 @@
 
 - **한국어로 뜻을 잡습니다.** 같은 문장을 세 외국어로 바로 옆에서 비교합니다.
 - **기본 → 중급 → 심화 3단계입니다.** 단계마다 **문법 개념을 먼저** 4개 언어로 비교하고, 그다음 단어와 회화로 넘어갑니다.
-- **결과물은 HTML 파일 하나입니다.** 서버도, 설치도, 인터넷도 필요 없습니다. 아이폰 '파일' 앱 미리보기처럼 **JS가 꺼진 환경에서도** 모든 내용이 보입니다.
+- **결과물은 두 가지입니다.** 콘텐츠는 같고, 쓰는 곳만 다릅니다.
+  - **웹앱** (`web/`): React 기반입니다. Vercel에 배포하고, 홈 화면에 추가(PWA)하면 오프라인에서도 열립니다.
+  - **단일 HTML** (`language-study.html`): 서버도 인터넷도 필요 없습니다. 아이폰 '파일' 앱 미리보기처럼 **JS가 꺼진 환경에서도** 모든 내용이 보입니다.
 
 | 단계 | 개념 (먼저 익히기) | 단어·회화·상황 | 규모 |
 |---|---|---|---|
@@ -45,23 +48,25 @@
 | 3. 심화: 공손한 표현과 상황별 표현 | 공손함의 단계, 일본어 경어, 조건과 가정, 수동과 사역, 이유와 반대, 돌려 말하기 | 미팅, 이메일, 전화, 개발자 협업, 공항, 병원, 클레임, 면접, 은행 | 주제 15개, 항목 185개 |
 
 ## ✨ 주요 기능
-| 기능 | 설명 | JS 없이 |
-|---|---|:---:|
-| 개념(문법) 섹션 | 단계마다 맨 앞에서 4개 언어 문법을 비교 표와 예문으로 설명 | ✅ |
-| 4개 언어 나란히 보기 | 한국어, 日本語(후리가나), 中文(병음), English | ✅ |
-| 한글 발음 + 높낮이·속도 | 일본어 악센트, 중국어 성조, 영어 강세, 연음, 약음, 쉼 | ✅ |
-| 공부할 언어 선택 | 日本語, 中文, English를 각각 켜고 끄기 (JS 모드에서는 선택 기억) | ✅ |
-| 가리기 | 언어별로 흐리게 가리고, 누르면 그 칸만 보기 (암기 확인용) | ✅ |
-| 글자표 | 히라가나·가타카나 전환, 중국어 성조·성모·운모표 | ✅ |
-| 🔊 발음 듣기 | Web Speech API (`ja-JP`, `zh-CN`, `en-US`) | ❌ |
-| 🔍 검색 | 4개 언어, 병음(성조 기호 없이 `xie xie`), 한글 발음(`오하요`) | ❌ |
-| 단계 기억 | 마지막에 본 단계를 다시 열기 | ❌ |
-| 라이트·다크 모드 | 시스템 설정을 따름 | ✅ |
+| 기능 | 설명 | 웹앱 | 단일 HTML (JS 없이) |
+|---|---|:---:|:---:|
+| 개념(문법) 섹션 | 단계마다 맨 앞에서 4개 언어 문법을 비교 표와 예문으로 설명 | ✅ | ✅ |
+| 4개 언어 나란히 보기 | 한국어, 日本語(후리가나), 中文(병음), English | ✅ | ✅ |
+| 한글 발음 + 높낮이·속도 | 일본어 악센트, 중국어 성조, 영어 강세, 연음, 약음, 쉼 | ✅ | ✅ |
+| 공부할 언어 선택 | 日本語, 中文, English를 각각 켜고 끄기 (선택 기억) | ✅ | ✅ |
+| 가리기 | 언어별로 흐리게 가리고, 누르면 그 칸만 보기 (암기 확인용) | ✅ | ✅ |
+| 글자표 | 히라가나·가타카나 전환, 중국어 성조·성모·운모표 | ✅ | ✅ |
+| 🔊 발음 듣기 | Web Speech API (`ja-JP`, `zh-CN`, `en-US`) | ✅ | ❌ |
+| 🔍 검색 | 4개 언어, 병음(성조 기호 없이 `xie xie`), 한글 발음(`오하요`) | ✅ | ❌ |
+| 단계 주소와 이어 보기 | `/basic`, `/intermediate`, `/advanced`, 홈에서 마지막 단계 이어 보기 | ✅ | ➖ (`#stage-N`) |
+| 📲 PWA | 홈 화면 추가, 오프라인 캐시 | ✅ | ➖ (파일 자체가 오프라인) |
+| 라이트·다크 모드 | 시스템 설정을 따름 | ✅ | ✅ |
 
 ## 🖼️ 미리보기
 <table>
 <tr>
-<td align="center"><img src="docs/images/mobile-dark.png" alt="모바일 다크 모드" width="260"><br><sub>모바일 · 다크 모드</sub></td>
+<td align="center"><img src="docs/images/web-mobile-cafe.png" alt="웹앱 모바일 화면" width="260"><br><sub>웹앱 · 모바일</sub></td>
+<td align="center"><img src="docs/images/web-mobile-dark.png" alt="웹앱 모바일 다크 모드" width="260"><br><sub>웹앱 · 다크 모드</sub></td>
 <td align="center"><img src="docs/images/mobile-pinyin.png" alt="중국어 병음과 성조 섹션" width="260"><br><sub>중국어 병음과 성조</sub></td>
 </tr>
 </table>
@@ -73,19 +78,34 @@
 
 **관리자 (수정과 빌드):**
 ```bash
-npm install            # Playwright만 설치됩니다 (런타임 의존성 없음)
-npm run build          # data/ → language-study.html
-npm test               # 데이터 검증 → 단위 테스트 → 빌드 → E2E 테스트
+npm install            # 루트에서 한 번 (npm workspaces: 루트 + web)
+npm run web:dev        # 웹앱 개발 서버
+npm run test:all       # 단일 HTML 테스트 + 웹앱 빌드·테스트
 ```
 
 | 명령 | 하는 일 |
 |---|---|
-| `npm run validate` | 데이터를 검증합니다 (빈 칸, 기호 짝, 성조 숫자와 병음 음절 수) |
-| `npm run test:unit` | `node --test`로 발음 표기 변환과 데이터 구조를 테스트합니다 |
-| `npm run build` | 정적 HTML을 빌드합니다 |
-| `npm run test:e2e` | Playwright로 아이폰(JS 없음/있음)과 데스크톱 Chrome에서 테스트합니다 |
+| `npm run web:dev` | 웹앱 개발 서버 (React Router dev) |
+| `npm run web:build` | 웹앱 빌드: 4개 경로 prerender + 서비스 워커 → `web/build/client` |
+| `npm run web:test` | 웹앱 빌드 후 Playwright E2E |
+| `npm run build` | 단일 HTML 빌드: `data/` → `language-study.html` |
+| `npm test` | 단일 HTML: 데이터 검증 → 단위 테스트 → 빌드 → E2E |
+| `npm run test:all` | 위 둘 모두 |
+| `npm run validate` | 데이터 검증 (빈 칸, 기호 짝, 성조 숫자와 병음 음절 수) |
 
-> Node.js 22 이상을 권장합니다. 데스크톱 E2E는 PC에 설치된 Chrome(`channel: "chrome"`)을 씁니다.
+> Node.js 22.12 이상이 필요합니다 (Vite 8). 데스크톱 E2E는 PC에 설치된 Chrome(`channel: "chrome"`)을 씁니다.
+
+### ▲ Vercel 배포
+1. Vercel에서 이 저장소를 Import합니다.
+2. **Root Directory**를 `web`으로 지정하고, **Include files outside the root directory**를 켭니다. 루트의 `data/`와 `lib/`를 쓰기 때문입니다.
+3. 나머지 설정은 `web/vercel.json`에 있습니다.
+   - 설치: 루트에서 `npm ci`
+   - 빌드: `npm run build`
+   - 출력: `build/client`
+   - `cleanUrls`
+   - 캐시 헤더
+
+배포 결과는 모두 정적 파일입니다. 런타임 서버가 없으므로 Vercel 무료 플랜으로도 충분합니다.
 
 ## 🔤 한글 발음 표기 읽는 법
 data에는 가벼운 기호로 적고, 빌드할 때 화면용 모양으로 바뀝니다. 자세한 규칙은 [`docs/pron-notation.md`](docs/pron-notation.md)에 있습니다.
@@ -102,14 +122,27 @@ data에는 가벼운 기호로 적고, 빌드할 때 화면용 모양으로 바�
 ## 🗂️ 프로젝트 구조
 ```text
 language-study/
-├── language-study.html      # 빌드 결과 (이 파일 하나로 배포)
+├── web/                     # 🆕 웹앱 (Vercel Root Directory)
+│   ├── app/
+│   │   ├── routes/          # home.tsx, stage.tsx (/:stage)
+│   │   ├── components/      # cells, sections, chrome (상단 바, 탭, 목차, 설정)
+│   │   ├── state/           # 보기 설정 Context (localStorage)
+│   │   ├── lib/             # 검색, 발음 듣기, 단계 슬러그
+│   │   └── app.css          # Tailwind v4 @theme 토큰 + 학습 카드 component class
+│   ├── scripts/             # sw.mjs (서비스 워커), serve.mjs (테스트 서버)
+│   ├── tests/e2e/           # Playwright (iPhone, iPhone JS 끔, Chrome)
+│   ├── react-router.config.ts  # ssr:false + prerender
+│   └── vercel.json
+├── language-study.html      # 단일 HTML 빌드 결과 (오프라인용)
 ├── build.mjs                # data → 정적 HTML (CSS와 JS를 inline으로 포함)
 ├── styles.css               # 디자인 토큰, 반응형, :has() 기반 토글
 ├── runtime.js               # JS가 있을 때만: 단계 전환, 검색, 발음 듣기, 설정 기억
 ├── lib/
-│   └── pron.mjs             # 한글 발음 표기 변환 (build와 단위 테스트가 함께 사용)
+│   ├── pron.mjs             # 한글 발음 표기 변환 (두 결과물이 함께 사용)
+│   └── pron.d.mts           # 타입 정의
 ├── data/
 │   ├── index.js             # STAGES export + 데이터 형식 설명
+│   ├── index.d.ts           # 데이터 타입 (웹앱이 사용)
 │   ├── stage1.js ~ stage3.js
 │   ├── kana.js              # 히라가나표
 │   └── pinyin.js            # 성조, 성모, 운모표
@@ -127,8 +160,11 @@ language-study/
 ```
 
 **설계 원칙**
-- **Progressive enhancement**: 모든 콘텐츠는 빌드할 때 HTML로 미리 렌더링합니다. 가리기, 언어 선택, 가나 전환처럼 JS 없이도 되는 기능은 `checkbox`와 `:has()`로 만들고, JS는 검색과 발음 듣기처럼 꼭 필요한 곳에만 씁니다.
-- **런타임 의존성 0**: 프레임워크와 번들러 없이 Node 내장 모듈만으로 빌드합니다.
+- **콘텐츠 단일 원본**: `data/`와 `lib/pron.mjs` 하나를 웹앱과 단일 HTML이 함께 씁니다. 콘텐츠는 한 번만 고치면 됩니다.
+- **Prerender 우선**: 웹앱의 모든 페이지는 빌드할 때 정적 HTML로 미리 만듭니다(React Router `ssr:false` + `prerender`). 그래서 첫 화면이 빠르고, 검색엔진과 JS 없는 환경에서도 내용이 보입니다.
+- **안전한 발음 렌더링**: 발음 표기는 토큰 트리(`tokenizePron`)로 그립니다. `innerHTML`은 쓰지 않습니다.
+- **가벼운 HTML**: 반복되는 학습 카드 요소는 Tailwind `@layer components`의 짧은 class로 묶었습니다. 단계 페이지 HTML이 888KB에서 369KB로 줄었습니다 (gzip 42KB).
+- **단일 HTML은 런타임 의존성 0**: 프레임워크 없이 Node 내장 모듈만으로 빌드합니다. JS 없이도 되는 기능은 `checkbox`와 `:has()`로 만들었습니다.
 
 ## ✍️ 콘텐츠 추가하기
 항목 형식은 [`data/index.js`](data/index.js) 맨 위 주석에 있습니다. list 항목은 이런 모양입니다.
@@ -143,7 +179,7 @@ language-study/
 
 1. 해당 단계 파일(`data/stageN.js`)에 항목을 추가합니다.
 2. `npm run validate`로 빈 칸과 성조 숫자 개수를 확인합니다.
-3. `npm test`로 전체를 확인합니다.
+3. `npm run test:all`로 웹앱과 단일 HTML을 모두 확인합니다.
 
 - 중국어는 **간체**로 쓰고, 병음은 **음절마다 띄어** 씁니다.
 - 예문에 실제 개인 이름을 쓰지 않습니다. 이름이 필요하면 `홍길동(ホン・ギルドン / 洪吉童 / Gildong Hong)`처럼 가상 이름을 씁니다.
@@ -153,21 +189,20 @@ language-study/
 |---|---|---|
 | 데이터 검증 | `scripts/validate-data.mjs` | 모든 항목의 필수 칸, `[ ]`·`( )` 짝, 병음 음절 수와 성조 숫자 개수 일치 |
 | 단위 테스트 (19개) | `node:test` | 발음 표기 → HTML 변환, XSS escape, 검색 키, 섹션 id 유일성, 간체 확인, 가상 이름 사용 |
-| E2E (3개 환경, 86회) | Playwright | 단계 전환과 기억, 검색, 가리기, 언어 선택, 발음 듣기, 병음표, 가로 스크롤 없음, 링크와 id 무결성, 접근성(aria-label, lang) |
+| 단일 HTML E2E (3개 환경, 86회) | Playwright | 단계 전환과 기억, 검색, 가리기, 언어 선택, 발음 듣기, 병음표, 가로 스크롤 없음, 링크와 id 무결성, 접근성(aria-label, lang) |
+| 웹앱 E2E (3개 환경, 51회) | Playwright | 위 시나리오에 더해 URL 직접 진입과 404, 이어 보기, prerender HTML(JS 끔), SEO 제목, PWA manifest와 서비스 워커, **오프라인에서 모든 단계 열기** |
 
-E2E는 모두 **offline + `file://`** 로 실행해서 "데이터 없는 휴대폰" 조건을 재현합니다.
-
-| 프로젝트 | 조건 |
-|---|---|
-| `iphone13-nojs` | WebKit, JS 꺼짐 (아이폰 파일 앱 미리보기) |
-| `iphone13-js` | WebKit, JS 켜짐 (아이폰 Safari) |
-| `desktop-chromium` | 데스크톱 Chrome 1440×900 |
+| 대상 | 프로젝트 | 조건 |
+|---|---|---|
+| 단일 HTML | `iphone13-nojs` / `iphone13-js` / `desktop-chromium` | **offline + `file://`** (데이터 없는 휴대폰) |
+| 웹앱 | `iphone13` / `iphone13-nojs` / `desktop-chrome` | Vercel과 같은 규칙의 정적 서버(`web/scripts/serve.mjs`) |
 
 ## 🏷️ 버전 히스토리
 자세한 변경 내역은 [`CHANGELOG.md`](CHANGELOG.md)에 있습니다.
 
 | 버전 | 날짜 | 요약 |
 |---|---|---|
+| **v2.0** | 2026-11-26 | ⚛️ 웹앱 전환 (React 19 · React Router 8 prerender · TS · Tailwind 4), 영문 URL, PWA 오프라인, Vercel 배포 설정. 단일 HTML은 유지하고 콘텐츠는 공유 |
 | **v1.2** | 2026-11-26 | 기본/중급/심화로 재편, 단계마다 개념(문법) 섹션 13개 추가, 콘텐츠 약 350개 → 680개, 모바일 후리가나 줄바꿈 개선 |
 | **v1.1.1** | 2026-11-26 | README 추가, 테스트 확대 (단위 테스트 도입, 구조·접근성 E2E), 발음 변환 모듈 분리, 병음 ü 검색 개선 |
 | **v1.1** | 2026-11-26 | 🇨🇳 중국어 추가, 모든 외국어에 한글 발음과 높낮이·속도 표기, 공부할 언어 선택, 병음표, 버전 문서 체계 |
@@ -179,16 +214,17 @@ E2E는 모두 **offline + `file://`** 로 실행해서 "데이터 없는 휴대�
 - [x] **v1.0**: 한·일·영 3개 언어 공부노트
 - [x] **v1.1**: 중국어, 한글 발음과 높낮이·속도 표기
 - [x] **v1.2**: 기본 / 중급 / 심화 재편, 개념(문법) 섹션
-- [ ] **v1.3**: ✈️ 여행 대비 (회화, 메뉴판, 표지판)
-- [ ] **v1.4**: 📝 문제와 풀이
-- [ ] **v1.5**: 🇺🇸 영어 TOEIC
+- [x] **v2.0**: ⚛️ React 웹앱 전환, PWA, Vercel
+- [ ] **v2.1**: ✈️ 여행 대비 (회화, 메뉴판, 표지판)
+- [ ] **v2.2**: 📝 문제와 풀이
+- [ ] **v2.3**: 🇺🇸 영어 TOEIC
 
 ## 🛠️ 관리 방식
 - **1인이 관리하는 개인 프로젝트**입니다. 사이트는 누구나 자유롭게 쓸 수 있지만, 코드 기여(PR)는 받지 않습니다.
 - 버전 단위로 작업합니다.
   - 대상 버전을 먼저 정합니다 (`docs/ROADMAP.md`).
   - 브랜치는 `feature/vX.Y` 또는 `fix/vX.Y.Z`로 만들고, `main`에 merge한 뒤 `vX.Y` 태그를 답니다.
-  - 끝나면 `CHANGELOG.md`, `package.json`의 `version`, ROADMAP, 이 README의 버전 히스토리를 함께 갱신합니다.
+  - 끝나면 `CHANGELOG.md`, 루트와 `web/`의 `package.json` `version`, ROADMAP, 이 README의 버전 히스토리를 함께 갱신합니다.
 - 자세한 작업 규칙은 [`CLAUDE.md`](CLAUDE.md)에 있습니다.
 - 라이선스: [MIT](LICENSE). 출처를 표시하면 자유롭게 쓰고 고칠 수 있습니다.
 

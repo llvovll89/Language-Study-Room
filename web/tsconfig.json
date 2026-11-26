@@ -1,0 +1,25 @@
+{
+  "include": ["**/*", "**/.server/**/*", "**/.client/**/*", ".react-router/types/**/*", "../data/index.d.ts", "../lib/pron.d.mts"],
+  "exclude": ["build", "node_modules"],
+  "compilerOptions": {
+    "lib": ["DOM", "DOM.Iterable", "ES2023"],
+    "types": ["node", "vite/client"],
+    "target": "ES2022",
+    "module": "ES2022",
+    "moduleResolution": "bundler",
+    "jsx": "react-jsx",
+    "rootDirs": [".", "./.react-router/types"],
+    "paths": {
+      "~/*": ["./app/*"],
+      "@data": ["../data/index.d.ts"],
+      "@lib/pron.mjs": ["../lib/pron.d.mts"]
+    },
+    "allowJs": false,
+    "esModuleInterop": true,
+    "verbatimModuleSyntax": true,
+    "noEmit": true,
+    "resolveJsonModule": true,
+    "skipLibCheck": true,
+    "strict": true
+  }
+}

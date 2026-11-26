@@ -1,2 +1,5 @@
 node_modules/
 test-results/
+web/build/
+web/.react-router/
+web/test-results/

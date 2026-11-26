@@ -1,6 +1,6 @@
 {
   "name": "language-study",
-  "version": "1.2.0",
+  "version": "2.0.0",
   "private": true,
   "license": "MIT",
   "type": "module",
@@ -9,9 +9,19 @@
     "validate": "node scripts/validate-data.mjs",
     "test:unit": "node --test \"tests/unit/*.test.mjs\"",
     "test:e2e": "playwright test",
-    "test": "npm run validate && npm run test:unit && npm run build && npm run test:e2e"
+    "test": "npm run validate && npm run test:unit && npm run build && npm run test:e2e",
+    "web:dev": "npm run dev -w web",
+    "web:build": "npm run build -w web",
+    "web:test": "npm run build -w web && npm run test -w web",
+    "test:all": "npm test && npm run web:test"
   },
   "devDependencies": {
     "@playwright/test": "^1.65.1"
+  },
+  "workspaces": [
+    "web"
+  ],
+  "engines": {
+    "node": ">=22.12"
   }
 }

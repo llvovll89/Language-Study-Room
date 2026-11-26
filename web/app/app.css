@@ -1,0 +1,123 @@
+@import "tailwindcss";
+
+/* ───────── 디자인 토큰 (기존 styles.css와 같은 값) ───────── */
+:root {
+  --paper: #EEF1EC; --sheet: #FAFBF8; --raised: #FFFFFF;
+  --ink: #1B2433; --ink-2: #3A4456; --muted: #6A7383;
+  --line: #DCE1DA; --line-2: #C7CEC5;
+  --ko: #1E7A66; --ja: #B23A48; --zh: #B0651C; --en: #2F57A8; --mark: #F2C14E;
+  --ko-soft: rgba(30,122,102,.09); --ja-soft: rgba(178,58,72,.08); --zh-soft: rgba(176,101,28,.09); --en-soft: rgba(47,87,168,.08);
+  --shadow: 0 10px 30px -14px rgba(27,36,51,.28);
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --paper: #151A21; --sheet: #1B212A; --raised: #222935;
+    --ink: #E6EAF0; --ink-2: #C2C9D4; --muted: #8F99A8;
+    --line: #2B333F; --line-2: #3A4452;
+    --ko: #5CC2A8; --ja: #E58591; --zh: #E6A660; --en: #86A8EC; --mark: #E8B93E;
+    --ko-soft: rgba(92,194,168,.12); --ja-soft: rgba(229,133,145,.12); --zh-soft: rgba(230,166,96,.12); --en-soft: rgba(134,168,236,.12);
+    --shadow: 0 10px 30px -14px rgba(0,0,0,.6);
+    color-scheme: dark;
+  }
+}
+
+@theme inline {
+  --color-paper: var(--paper); --color-sheet: var(--sheet); --color-raised: var(--raised);
+  --color-ink: var(--ink); --color-ink-2: var(--ink-2); --color-muted: var(--muted);
+  --color-line: var(--line); --color-line-2: var(--line-2);
+  --color-ko: var(--ko); --color-ja: var(--ja); --color-zh: var(--zh); --color-en: var(--en); --color-mark: var(--mark);
+  --color-ko-soft: var(--ko-soft); --color-ja-soft: var(--ja-soft); --color-zh-soft: var(--zh-soft); --color-en-soft: var(--en-soft);
+  --shadow-card: var(--shadow);
+  --font-sans: "IBM Plex Sans KR", system-ui, -apple-system, sans-serif;
+  --font-mincho: "Zen Old Mincho", "Hiragino Mincho ProN", "Yu Mincho", serif;
+  --font-hanzi: "Noto Serif SC", "Songti SC", "STSong", "SimSun", serif;
+}
+
+@layer base {
+  html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; }
+  body { @apply bg-paper text-ink font-sans antialiased; font-size: 16px; line-height: 1.6; }
+  button { -webkit-tap-highlight-color: transparent; cursor: pointer; }
+  :focus-visible { outline: 2px solid var(--en); outline-offset: 2px; border-radius: 6px; }
+  ruby rt { font-family: var(--font-sans); font-size: .58em; color: var(--muted); letter-spacing: .02em; }
+  @media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior: auto; }
+    *, *::before, *::after { transition: none !important; animation: none !important; }
+  }
+}
+
+/* 반복되는 학습 카드 요소는 짧은 class로 묶는다 (prerender HTML 크기를 줄이기 위해)
+   페이지 레이아웃은 컴포넌트에서 Tailwind utility로 직접 쓴다 */
+@layer components {
+  .ko { --c: var(--ko); } .ja { --c: var(--ja); } .zh { --c: var(--zh); } .en { --c: var(--en); }
+
+  /* 엔트리: 데스크톱은 켜진 언어 수만큼 열, 모바일은 1열 카드 */
+  .entry { @apply grid grid-cols-1 gap-3 py-4 border-t border-line md:gap-5 md:grid-flow-col md:auto-cols-[minmax(0,1fr)]; }
+  .entry.dlg { @apply md:grid-cols-[60px]; }
+  .pat .entry { @apply border-t-0 p-0; }
+  .colhead { @apply hidden gap-5 pb-2.5 text-xs font-medium text-muted md:grid md:grid-flow-col md:auto-cols-[minmax(0,1fr)]; }
+  .colhead.dlg { @apply md:grid-cols-[60px]; }
+  .colhead > span { @apply flex items-center gap-1.5 pl-4; }
+  .colhead > span[class]::before { content: ""; @apply size-1.5 rounded-full; background: var(--c); }
+  .who { @apply justify-self-start self-start mt-0.5 text-xs font-bold px-2.5 py-0.5 rounded-full border whitespace-nowrap bg-paper border-line text-ink-2; }
+  .me .who { @apply bg-ink border-ink text-paper; }
+
+  /* 칸 */
+  .cell { @apply relative min-w-0 pl-4 border-l-2; border-color: var(--c); }
+  .cell.hidable { @apply cursor-pointer; }
+  .cell::before { content: attr(data-l); @apply block text-[11px] font-bold mb-0.5 md:hidden; color: var(--c); }
+  .row { @apply flex items-start justify-between gap-1; }
+  .txt { @apply block min-w-0 transition-[filter]; word-break: keep-all; overflow-wrap: anywhere; }
+  .ko .txt { @apply font-medium; }
+  .ja .txt { @apply font-mincho text-[18px] leading-[1.75] md:text-[18.5px]; word-break: normal; }
+  .zh .txt { @apply font-hanzi text-[18px] leading-[1.7] md:text-[18.5px]; word-break: normal; }
+  .en .txt { @apply text-[15.5px] text-ink-2; }
+  .py, .yomi { @apply block text-[13px] text-muted mt-px; }
+  .pron { @apply block text-[13px] leading-[1.9] opacity-90 mt-0.5; color: var(--c); }
+  .say { @apply flex-none size-10 -mt-2 -mr-2 grid place-items-center rounded-full text-muted transition-colors md:size-8 md:-mt-1 md:-mr-1.5; }
+  .say:hover { @apply bg-paper; color: var(--c); }
+  .say:active { transform: scale(.92); }
+
+  /* 문형 태그 */
+  .tag { @apply text-[13.5px] px-3 py-1 rounded-md font-medium; }
+  .tag.ko { @apply bg-ko-soft text-ko; } .tag.ja { @apply bg-ja-soft text-ja font-mincho text-[15px]; }
+  .tag.zh { @apply bg-zh-soft text-zh font-hanzi text-[15px]; } .tag.en { @apply bg-en-soft text-en; }
+
+  /* 표: 데스크톱 표, 모바일 카드 */
+  .tbl { @apply mb-5 md:border md:border-line md:rounded-[10px] md:overflow-hidden md:bg-raised; }
+  .tbl table { @apply w-full border-collapse text-[14.5px] block md:table; }
+  .tbl thead { @apply hidden md:table-header-group; }
+  .tbl th { @apply bg-paper font-medium text-[12.5px] text-muted text-left px-4 py-2.5; }
+  .tbl tbody { @apply block md:table-row-group; }
+  .tbl tr { @apply block bg-raised border border-line rounded-[10px] px-3.5 py-3 mb-2.5 md:table-row md:bg-transparent md:border-0 md:p-0 md:mb-0; }
+  .tbl td { @apply grid grid-cols-[112px_1fr] gap-2.5 py-1 align-top md:table-cell md:px-4 md:py-3 md:border-t md:border-line; }
+  .tbl td::before { content: attr(data-label); @apply text-xs font-medium text-muted pt-0.5 font-sans md:hidden; }
+  .tbl td:first-child { @apply block font-bold text-base pb-2 mb-1 border-b border-line md:table-cell md:text-[14.5px] md:whitespace-nowrap md:border-b-0 md:pb-3 md:mb-0; }
+  .tbl td:first-child::before { display: none; }
+  .tbl td.ja { @apply font-mincho text-base; } .tbl td.zh { @apply font-hanzi text-base; }
+  .tbl td .pron { @apply font-sans; }
+
+  /* 글자표 버튼 */
+  .k { @apply border border-line rounded-[10px] bg-raised py-3 px-1 text-center flex flex-col items-center gap-0.5 transition-[border-color,transform]; }
+  .k:active { transform: scale(.97); }
+  .k-ja:hover { @apply border-ja; } .k-zh:hover { @apply border-zh; }
+  .k > span { @apply text-[10.5px] text-muted whitespace-nowrap md:text-[11.5px]; }
+}
+
+/* 한글 발음 표기: 높낮이와 속도 (docs/pron-notation.md) */
+@layer components {
+  .pron .hi { font-weight: 700; text-decoration: overline; text-decoration-thickness: 1.5px; }
+  .pron .weak { font-size: .86em; opacity: .6; }
+  .pron .link { opacity: .7; margin: 0 -1px; }
+  .pron .pause { display: inline-block; width: 1px; height: .9em; vertical-align: -.1em; background: currentColor; opacity: .45; margin: 0 2px; }
+  .pron .tone { font-size: .72em; margin-right: 1px; letter-spacing: -.06em; font-weight: 700; vertical-align: super; line-height: 0; }
+  .pron .tone.t0 { opacity: .6; }
+  .blurred { filter: blur(7px); user-select: none; -webkit-user-select: none; }
+  .say-icon {
+    width: 16px; height: 16px; background: currentColor;
+    -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M11 5 6 9H2v6h4l5 4V5z'/%3E%3Cpath d='M15.5 8.5a5 5 0 0 1 0 7'/%3E%3Cpath d='M19 5a10 10 0 0 1 0 14'/%3E%3C/svg%3E") center/contain no-repeat;
+    mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M11 5 6 9H2v6h4l5 4V5z'/%3E%3Cpath d='M15.5 8.5a5 5 0 0 1 0 7'/%3E%3Cpath d='M19 5a10 10 0 0 1 0 14'/%3E%3C/svg%3E") center/contain no-repeat;
+  }
+  .no-scrollbar { scrollbar-width: none; }
+  .no-scrollbar::-webkit-scrollbar { display: none; }
+}

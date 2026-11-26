@@ -1,0 +1,17 @@
+{
+  "name": "네 언어 공부노트",
+  "short_name": "네 언어",
+  "description": "한 문장을 한국어, 일본어, 중국어, 영어로 나란히 익히는 공부노트",
+  "lang": "ko",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#EEF1EC",
+  "theme_color": "#EEF1EC",
+  "icons": [
+    { "src": "/icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "/icon-512.png", "sizes": "512x512", "type": "image/png" },
+    { "src": "/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" },
+    { "src": "/icon.svg", "sizes": "any", "type": "image/svg+xml" }
+  ]
+}
