@@ -1,4 +1,4 @@
-/* JS가 있을 때만 붙는 기능: 단계 하나씩 보기, 검색, 발음 듣기, 목차 위치 표시
+/* JS가 있을 때만 붙는 기능: 단계 하나씩 보기, 검색, 발음 듣기, 목차 위치 표시, 공부할 언어 기억
    JS 없이 열면(아이폰 파일 미리보기 등) 정적 HTML과 CSS만으로 전체 내용이 보인다 */
 const root = document.documentElement;
 root.classList.remove("no-js");
@@ -19,7 +19,7 @@ const speak = (text, lang) => {
   speechSynthesis.cancel();
   const u = new SpeechSynthesisUtterance(text.replace(/[～~○]/g, ""));
   u.lang = lang;
-  u.rate = lang === "ja-JP" ? 0.85 : 0.9;
+  u.rate = lang === "en-US" ? 0.9 : 0.85;
   speechSynthesis.speak(u);
 };
 
@@ -65,7 +65,7 @@ function applySearch(){
     const countEl = sec.querySelector(".count");
     const note = sec.querySelector(".note");
     if(note) note.hidden = !!q;
-    if(sec.dataset.type === "kana"){
+    if(sec.dataset.type === "kana" || sec.dataset.type === "pinyin"){
       sec.hidden = !!q;
       if(link) link.hidden = !!q;
       if(!q) any = true;
@@ -118,9 +118,22 @@ document.addEventListener("pointerup", e => {
   if(e.button !== 0 || e.target.closest("[data-say]")) return;
   const c = e.target.closest(".cell");
   if(!c) return;
-  const lang = ["ko","ja","en"].find(l => c.classList.contains(l));
+  const lang = ["ko","ja","zh","en"].find(l => c.classList.contains(l));
   if(document.getElementById("hide-" + lang).checked) c.classList.toggle("shown");
 });
+
+/* ───────── 공부할 언어 기억 ─────────
+   선택은 CSS(:has)가 처리하고, 여기서는 저장과 복원만 한다 */
+const showCbs = [...document.querySelectorAll(".show-cb")];
+const savedLangs = store.get("tri.langs");
+if(savedLangs !== null){
+  const on = savedLangs.split(",");
+  showCbs.forEach(cb => { cb.checked = on.includes(cb.id.slice(5)); });
+}
+showCbs.forEach(cb => cb.addEventListener("change", () => {
+  store.set("tri.langs", showCbs.filter(c => c.checked).map(c => c.id.slice(5)).join(","));
+  watchToc();
+}));
 
 /* ───────── 목차 현재 위치 ───────── */
 const toc = document.getElementById("toc");

@@ -80,8 +80,13 @@ test.describe("JS로 열었을 때", () => {
   test("보기 설정 패널은 바깥을 누르면 닫힌다", async ({ page }) => {
     await press(page, page.locator(".view summary"));
     await expect(page.locator(".view-panel")).toBeVisible();
-    await scrollToSection(page, "s1-greet");
-    await press(page, page.locator("#s1-greet .cell.ko").nth(3));
+    // 패널(위)과 탭바(아래)에 가리지 않는 위치로 칸을 옮긴 뒤 누른다
+    const cell = page.locator("#s1-greet .cell.ko").nth(3);
+    await cell.evaluate(el => {
+      document.documentElement.style.scrollBehavior = "auto";
+      window.scrollTo(0, el.getBoundingClientRect().top + window.scrollY - (window.innerHeight - 200));
+    });
+    await press(page, cell);
     await expect(page.locator(".view-panel")).toBeHidden();
   });
 
@@ -128,5 +133,40 @@ test.describe("JS로 열었을 때", () => {
     await shot(page, testInfo, "03-dialog-light");
     await page.emulateMedia({ colorScheme: "dark" });
     await shot(page, testInfo, "04-dialog-dark");
+  });
+  test("중국어 칸은 병음과 성조 발음을 보여 주고 zh-CN으로 읽는다", async ({ page }) => {
+    await scrollToSection(page, "s1-greet");
+    const zh = page.locator("#s1-greet .cell.zh").first();
+    await expect(zh.locator(".py")).toBeVisible();
+    await expect(zh.locator(".pron .tone").first()).toBeVisible();
+    await press(page, zh.locator(".say"));
+    const spoken = await page.evaluate(() => window.__spoken);
+    expect(spoken.at(-1).lang).toBe("zh-CN");
+    expect(spoken.at(-1).text).toBe(await zh.locator(".txt").innerText());
+  });
+
+  test("공부할 언어를 끄면 그 열이 사라지고, 새로고침해도 유지된다", async ({ page }) => {
+    await press(page, page.locator(".view summary"));
+    await press(page, page.locator('label[for="show-zh"]'));
+    await page.keyboard.press("Escape");
+    await expect(page.locator("#s1-greet .cell.zh").first()).toBeHidden();
+    await expect(page.locator("#s1-pinyin")).toBeHidden();
+    await expect(page.locator("#s1-greet .cell.ja").first()).toBeVisible();
+    await page.reload();
+    await expect(page.locator("#show-zh")).not.toBeChecked();
+    await expect(page.locator("#s1-greet .cell.zh").first()).toBeHidden();
+    for(const i of [0, 1, 2]){
+      await press(page, stageNav(page).nth(i));
+      const overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
+      expect(overflow).toBeLessThanOrEqual(0);
+    }
+  });
+
+  test("병음은 성조 기호 없이도, 한글 발음은 표기 기호 없이도 검색된다", async ({ page }) => {
+    await page.fill("#q", "xie xie");
+    await expect(page.locator(".stage:not([hidden]) [data-text]:not([hidden])").first()).toContainText("谢谢");
+    await page.fill("#q", "오하요");
+    await expect(page.locator("#s1-greet [data-text]:not([hidden])").first()).toContainText("おはよう");
+    await expect(page.locator("#s1-pinyin")).toBeHidden();
   });
 });

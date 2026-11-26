@@ -85,4 +85,33 @@ test.describe("JS 없이 열었을 때", () => {
     expect(await displayOf(page.locator("#s3-keigo tr").nth(1))).toBe("block");
     await shot(page, testInfo, "05-table-cards");
   });
+  test("모든 외국어에 한글 발음이 있고, 높낮이와 성조가 표시된다", async ({ page }) => {
+    const first = page.locator("#s1-greet .entry").first();
+    for(const l of ["ja", "zh", "en"]) await expect(first.locator(`.cell.${l} .pron`)).toBeVisible();
+    await expect(first.locator(".cell.ja .pron .hi")).toHaveCount(1);
+    await expect(first.locator(".cell.zh .py")).toBeVisible();
+    expect(await first.locator(".cell.zh .pron .tone").count()).toBeGreaterThan(0);
+    // 원본 표기 기호는 화면에 남지 않는다
+    for(const l of ["ja", "zh", "en"]) await expect(first.locator(`.cell.${l} .pron`)).not.toContainText(/[\[\]_|0-9]/);
+  });
+
+  test("공부할 언어 선택은 JS 없이도 동작한다", async ({ page }, testInfo) => {
+    await press(page, page.locator(".view summary"));
+    await press(page, page.locator('label[for="show-ja"]'));
+    await press(page, page.locator(".view summary"));
+    expect(await displayOf(page.locator("#s1-greet .cell.ja").first())).toBe("none");
+    expect(await displayOf(page.locator("#s1-kana"))).toBe("none");
+    await expect(page.locator("#s1-greet .cell.zh").first()).toBeVisible();
+    const overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
+    expect(overflow).toBeLessThanOrEqual(0);
+    await scrollToSection(page, "s1-greet");
+    await shot(page, testInfo, "06-no-japanese");
+  });
+
+  test("병음표를 볼 수 있다", async ({ page }, testInfo) => {
+    await scrollToSection(page, "s1-pinyin");
+    await expect(page.locator("#s1-pinyin .tone-grid .k")).toHaveCount(5);
+    await expect(page.locator("#s1-pinyin .py-grid .k").first()).toBeVisible();
+    await shot(page, testInfo, "07-pinyin");
+  });
 });
