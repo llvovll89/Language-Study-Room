@@ -5,6 +5,7 @@ import { isChart, isConcept, type Charts } from "~/lib/sections";
 import { HTML_LANG, LANG_LABEL, type Foreign, type LangCode } from "~/lib/stages";
 import { useSettings } from "~/state/settings";
 import { ColHead, KoCell, LangCells, Pron } from "./cells";
+import { QuizLauncher } from "./quiz";
 import { CardBody } from "./showcards";
 
 /* 검색 결과: 항목 index별 표시 여부 (undefined면 전부 표시) */
@@ -213,6 +214,7 @@ export function Section({ sec, total, visible, query }: { sec: SectionT; total: 
         </div>
       )}
       {body}
+      {!query && <QuizLauncher sec={sec} />}
     </section>
   );
 }

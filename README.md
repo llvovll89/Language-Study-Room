@@ -8,7 +8,7 @@
 
 ### 🌐 [language-study-room.vercel.app](https://language-study-room.vercel.app/)
 
-![version](https://img.shields.io/badge/version-v2.1.0-1B2433)
+![version](https://img.shields.io/badge/version-v2.2.0-1B2433)
 ![languages](https://img.shields.io/badge/languages-KO%20%7C%20JA%20%7C%20ZH%20%7C%20EN-1E7A66)
 ![stack](https://img.shields.io/badge/React%2019%20%C2%B7%20React%20Router%208%20%C2%B7%20Tailwind%204-TypeScript-B0651C)
 ![pwa](https://img.shields.io/badge/PWA-offline%20ready-1E7A66)
@@ -60,6 +60,7 @@
 | 공부할 언어 선택 | 日本語, 中文, English를 각각 켜고 끄기 (선택 기억) | ✅ | ✅ |
 | 가리기 | 언어별로 흐리게 가리고, 누르면 그 칸만 보기 (암기 확인용) | ✅ | ✅ |
 | 글자표 | 히라가나·가타카나 전환, 중국어 성조·성모·운모표 | ✅ | ✅ |
+| 📝 문제와 풀이 | 섹션마다 자동 생성 문제 (뜻, 외국어, 듣기, 빈칸 채우기), 오답 노트와 다시 풀기 | ✅ | ➖ |
 | 🪧 보여 주기 카드 | 여행 탭: 고른 언어 문장을 전체 화면 큰 글씨로 보여 주기 | ✅ | ➖ |
 | 🔊 발음 듣기 | Web Speech API (`ja-JP`, `zh-CN`, `en-US`) | ✅ | ❌ |
 | 🔍 검색 | 4개 언어, 병음(성조 기호 없이 `xie xie`), 한글 발음(`오하요`) | ✅ | ❌ |
@@ -95,7 +96,8 @@ npm run test:all       # 단일 HTML 테스트 + 웹앱 빌드·테스트
 | `npm run web:test` | 웹앱 빌드 후 Playwright E2E |
 | `npm run build` | 단일 HTML 빌드: `data/` → `language-study.html` |
 | `npm test` | 단일 HTML: 데이터 검증 → 단위 테스트 → 빌드 → E2E |
-| `npm run test:all` | 위 둘 모두 |
+| `npm run web:unit` | 웹앱 단위 테스트 (문제 생성) |
+| `npm run test:all` | 위 모두 |
 | `npm run validate` | 데이터 검증 (빈 칸, 기호 짝, 성조 숫자와 병음 음절 수) |
 
 > Node.js 22.12 이상이 필요합니다 (Vite 8). 데스크톱 E2E는 PC에 설치된 Chrome(`channel: "chrome"`)을 씁니다.
@@ -196,7 +198,8 @@ language-study/
 | 데이터 검증 | `scripts/validate-data.mjs` | 모든 항목의 필수 칸, `[ ]`·`( )` 짝, 병음 음절 수와 성조 숫자 개수 일치 |
 | 단위 테스트 (24개) | `node:test` | 발음 표기 → HTML 변환, XSS escape, 검색 키, 섹션 id 유일성, 간체 확인, 가상 이름 사용 |
 | 단일 HTML E2E (3개 환경, 86회) | Playwright | 단계 전환과 기억, 검색, 가리기, 언어 선택, 발음 듣기, 병음표, 가로 스크롤 없음, 링크와 id 무결성, 접근성(aria-label, lang) |
-| 웹앱 E2E (3개 환경, 60회) | Playwright | 위 시나리오에 더해 URL 직접 진입과 404, 이어 보기, prerender HTML(JS 끔), SEO 제목, PWA manifest와 서비스 워커, **오프라인에서 모든 단계 열기** |
+| 문제 생성 단위 테스트 (5개) | `node:test` (TS) | 모든 섹션 출제 가능, 보기 유효성, 빈칸 복원, 언어·TTS 조건, 오답 노트 |
+| 웹앱 E2E (3개 환경, 68회) | Playwright | 위 시나리오에 더해 URL 직접 진입과 404, 이어 보기, prerender HTML(JS 끔), SEO 제목, PWA manifest와 서비스 워커, **오프라인에서 모든 단계 열기** |
 
 | 대상 | 프로젝트 | 조건 |
 |---|---|---|
@@ -208,6 +211,7 @@ language-study/
 
 | 버전 | 날짜 | 요약 |
 |---|---|---|
+| **v2.2** | 2026-11-26 | 📝 문제와 풀이: 데이터로 문제 자동 생성 (뜻, 외국어, 듣기, 빈칸 채우기), 오답 노트 |
 | **v2.1** | 2026-11-26 | ✈️ 여행 탭 (장면 11개, 표현 224개), 보여 주기 카드(전체 화면 큰 글씨, 언어 기억, 들려주기), 탭 4개 |
 | **v2.0.1** | 2026-11-26 | 성능: 콘텐츠를 route loader로 옮겨 JS 번들에서 데이터 제거 (202KB → 12KB), 단계 페이지는 그 단계 데이터만 포함 |
 | **v2.0** | 2026-11-26 | ⚛️ 웹앱 전환 (React 19 · React Router 8 prerender · TS · Tailwind 4), 영문 URL, PWA 오프라인, Vercel 배포 설정. 단일 HTML은 유지하고 콘텐츠는 공유 |
@@ -224,7 +228,7 @@ language-study/
 - [x] **v1.2**: 기본 / 중급 / 심화 재편, 개념(문법) 섹션
 - [x] **v2.0**: ⚛️ React 웹앱 전환, PWA, Vercel
 - [x] **v2.1**: ✈️ 여행 탭, 보여 주기 카드
-- [ ] **v2.2**: 📝 문제와 풀이
+- [x] **v2.2**: 📝 문제와 풀이 (자동 생성, 오답 노트)
 - [ ] **v2.3**: 🇺🇸 영어 TOEIC
 
 ## 🛠️ 관리 방식

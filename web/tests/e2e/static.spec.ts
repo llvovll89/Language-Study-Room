@@ -1,6 +1,6 @@
 import { readFileSync } from "node:fs";
 import { expect, test } from "@playwright/test";
-import { hydrated } from "./helpers";
+import { fakeSpeech, hydrated } from "./helpers";
 
 /* prerender된 HTML 구조와 접근성 (JS 유무 상관없이 실행) */
 const { version } = JSON.parse(readFileSync(new URL("../../../package.json", import.meta.url), "utf8"));
@@ -14,8 +14,9 @@ test.describe("prerender HTML과 구조", () => {
     const cards = page.locator("#t-cards .show-card");
     expect(await cards.count()).toBeGreaterThanOrEqual(20);
     await expect(cards.first().locator(".ja [lang=ja]")).toBeVisible();
-    // 크게 보기 버튼은 JS가 있을 때만
+    // 크게 보기와 문제 풀기 버튼은 JS가 있을 때만
     await expect(page.locator(".show-btn")).toHaveCount(0);
+    await expect(page.locator(".quiz-start")).toHaveCount(0);
   });
 
   test("JS 없이도 단계 내용과 단계 링크가 HTML에 있다", async ({ page, javaScriptEnabled }) => {
@@ -55,7 +56,7 @@ test.describe("prerender HTML과 구조", () => {
 
   test("발음 버튼은 이름(aria-label)과 지원 언어를 가진다", async ({ page, javaScriptEnabled }) => {
     test.skip(javaScriptEnabled === false, "발음 버튼은 JS로 그린다");
-    await page.addInitScript(() => Object.defineProperty(window, "speechSynthesis", { configurable: true, value: { cancel(){}, speak(){} } }));
+    await fakeSpeech(page);
     await page.goto("/basic"); await hydrated(page);
     await expect(page.locator(".say").first()).toBeAttached();
     const bad = await page.evaluate(() => [...document.querySelectorAll("[data-say]")]
