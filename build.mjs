@@ -2,35 +2,19 @@
    모든 학습 내용을 HTML에 미리 렌더링해서 JS 없이도(아이폰 파일 미리보기, 오프라인) 볼 수 있게 한다 */
 import { readFileSync, writeFileSync } from "node:fs";
 import { STAGES, SEION, DAKUON, YOON, PINYIN } from "./data/index.js";
+import { esc, renderPron, plainPron, plainPinyin } from "./lib/pron.mjs";
 
 const here = new URL(".", import.meta.url);
 const css = readFileSync(new URL("styles.css", here), "utf8");
 const runtime = readFileSync(new URL("runtime.js", here), "utf8");
 const { version } = JSON.parse(readFileSync(new URL("package.json", here), "utf8"));
-const VERSION = "v" + version.split(".").slice(0, 2).join(".");
+// patch가 0이면 vX.Y, 아니면 vX.Y.Z
+const [maj, min, patch] = version.split(".");
+const VERSION = `v${maj}.${min}${patch !== "0" ? "." + patch : ""}`;
 const OUT = new URL("language-study.html", here);
 
-const esc = s => String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
 const toKata = s => s.replace(/[ぁ-ゖ]/g, c => String.fromCharCode(c.charCodeAt(0) + 0x60));
 
-/* ───────── 한글 발음 표기 (docs/pron-notation.md) ───────── */
-const TONES = { 1: "→", 2: "↗", 3: "↘↗", 4: "↘", 0: "·" };
-const TONE_NAMES = { 1: "1성", 2: "2성", 3: "3성", 4: "4성", 0: "경성" };
-const renderPron = (text, lang) => {
-  let h = esc(text);
-  if(lang === "zh") h = h.replace(/[0-4]/g, d => `<sup class="tone t${d}" title="${TONE_NAMES[d]}">${TONES[d]}</sup>`);
-  return h
-    .replace(/\[/g, '<span class="hi">').replace(/\]/g, "</span>")
-    .replace(/\(/g, '<span class="weak">').replace(/\)/g, "</span>")
-    .replace(/_/g, '<span class="link" aria-hidden="true">‿</span>')
-    .replace(/\s*\|\s*/g, ' <span class="pause" aria-hidden="true"></span> ');
-};
-/* 검색용: 표기 기호와 성조 숫자를 지우고, 병음은 성조 기호 없는 형태도 넣는다 */
-const plainPron = (p, lang) => (lang === "zh" ? p.replace(/[0-4]/g, "") : p).replace(/[\[\]()_|]/g, "");
-const plainPinyin = py => {
-  const bare = py.normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/ü/g, "v");
-  return `${py} ${bare} ${bare.replace(/\s+/g, "")}`;
-};
 const textKey = parts => esc(parts.filter(Boolean).join(" ").toLowerCase());
 
 const BULB = '<svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 18h6"/><path d="M10 22h4"/><path d="M12 2a7 7 0 0 0-4 12.7V17h8v-2.3A7 7 0 0 0 12 2z"/></svg>';

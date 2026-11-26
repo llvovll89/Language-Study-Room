@@ -169,4 +169,42 @@ test.describe("JS로 열었을 때", () => {
     await expect(page.locator("#s1-greet [data-text]:not([hidden])").first()).toContainText("おはよう");
     await expect(page.locator("#s1-pinyin")).toBeHidden();
   });
+  test("주소의 #stage-3으로 열면 3단계가 보인다", async ({ page }) => {
+    // 같은 문서에서 hash만 바꾸면 다시 로드되지 않으므로 새로 연다
+    await page.goto("about:blank");
+    await page.goto(PAGE_URL + "#stage-3");
+    expect(await visibleStages(page)).toEqual(["3"]);
+  });
+
+  test("병음표를 누르면 예시 한자를 중국어로 읽는다", async ({ page }) => {
+    await scrollToSection(page, "s1-pinyin");
+    await press(page, page.locator("#s1-pinyin .tone-grid .k").first());
+    await press(page, page.locator("#s1-pinyin .py-grid .k").first());
+    const spoken = await page.evaluate(() => window.__spoken);
+    expect(spoken).toEqual([{ text: "妈", lang: "zh-CN" }, { text: "八", lang: "zh-CN" }]);
+  });
+
+  test("중국어 한자와 중국어 한글 발음으로도 검색된다", async ({ page }) => {
+    await page.fill("#q", "你好");
+    await expect(page.locator("#s1-greet [data-text]:not([hidden])").first()).toContainText("你好");
+    await page.fill("#q", "니 하오");
+    await expect(page.locator("#s1-greet [data-text]:not([hidden])").first()).toContainText("你好");
+  });
+
+  test("다른 단계에서 검색하면 그 단계 안에서만 찾고, 지우면 개수가 돌아온다", async ({ page }) => {
+    await press(page, stageNav(page).nth(1));
+    await page.fill("#q", "americano");
+    const shown = page.locator(".stage:not([hidden]) [data-text]:not([hidden])");
+    expect(await shown.count()).toBeGreaterThan(0);
+    await expect(page.locator("#stage-1")).toBeHidden();
+    await page.fill("#q", "");
+    await expect(page.locator("#s2-cafe .count")).toHaveText(/^\d+개$/);
+  });
+
+  test("공부할 언어를 모두 다시 켜면 저장값도 모두 켜짐으로 바뀐다", async ({ page }) => {
+    await press(page, page.locator(".view summary"));
+    await press(page, page.locator('label[for="show-en"]'));
+    await press(page, page.locator('label[for="show-en"]'));
+    expect(await page.evaluate(() => localStorage.getItem("tri.langs"))).toBe("ja,zh,en");
+  });
 });
