@@ -14,6 +14,7 @@
   - 中文 가리기, 발음 숨기기, 중국어만 보기
 - E2E 테스트 `js.spec.js`: `#stage-3`로 열기, 병음표 듣기, 한자·중국어 한글 발음 검색, 단계별 검색, 언어 선택 저장
 - npm scripts: `test:unit`, `test:e2e`
+- MIT 라이선스 (`LICENSE`)
 
 ### 변경
 - 발음 표기 변환을 `lib/pron.mjs`로 분리 (build와 테스트가 함께 사용)

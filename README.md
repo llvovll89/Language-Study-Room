@@ -10,6 +10,7 @@
 ![languages](https://img.shields.io/badge/languages-KO%20%7C%20JA%20%7C%20ZH%20%7C%20EN-1E7A66)
 ![offline](https://img.shields.io/badge/offline-ready-B0651C)
 ![tests](https://img.shields.io/badge/tests-Playwright%20%2B%20node%3Atest-2F57A8)
+![license](https://img.shields.io/badge/license-MIT-6A7383)
 
 <img src="docs/images/desktop-dialog.png" alt="데스크톱 화면: 카페 주문 대화를 4개 언어로 비교" width="820">
 
@@ -187,6 +188,6 @@ E2E는 모두 **offline + `file://`** 로 실행해서 "데이터 없는 휴대�
   - 브랜치는 `feature/vX.Y` 또는 `fix/vX.Y.Z`로 만들고, `main`에 merge한 뒤 `vX.Y` 태그를 답니다.
   - 끝나면 `CHANGELOG.md`, `package.json`의 `version`, ROADMAP, 이 README의 버전 히스토리를 함께 갱신합니다.
 - 자세한 작업 규칙은 [`CLAUDE.md`](CLAUDE.md)에 있습니다.
-- © 2026 All rights reserved. 코드와 콘텐츠의 재배포는 허용하지 않습니다.
+- 라이선스: [MIT](LICENSE). 출처를 표시하면 자유롭게 쓰고 고칠 수 있습니다.
 
 <div align="center"><sub>Made for learners who start from Korean.</sub></div>
