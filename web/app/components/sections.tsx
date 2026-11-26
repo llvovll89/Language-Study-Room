@@ -164,7 +164,7 @@ const PinyinChart = () => {
 /* ───────── 섹션 ───────── */
 
 export const KindBadge = ({ small = false }: { small?: boolean }) => (
-  <span className={`kind inline-block align-[.18em] mr-2 font-bold not-italic rounded-full bg-ink text-paper ${small ? "text-[10.5px] px-1.5 py-px mr-1.5" : "text-[11.5px] px-2 py-0.5"}`}>개념</span>
+  <span className={`kind inline-block shrink-0 whitespace-nowrap align-[.18em] mr-2 font-bold not-italic rounded-full bg-ink text-paper [.on_&]:bg-paper [.on_&]:text-ink ${small ? "text-[10.5px] px-1.5 py-px mr-1.5" : "text-[11.5px] px-2 py-0.5"}`}>개념</span>
 );
 
 const BULB = (

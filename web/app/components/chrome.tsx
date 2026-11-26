@@ -148,8 +148,9 @@ export function Toc({ stageId, sections, counts, totals, active }: { stageId: nu
           <a key={sec.id} href={`#${sec.id}`} data-for={sec.id} aria-current={on ? "location" : undefined}
             className={`flex-none flex items-center gap-2 px-3.5 md:px-3 py-1.5 md:py-2 rounded-full md:rounded-[10px] border md:border-0 text-sm leading-snug whitespace-nowrap md:whitespace-normal ${on ? "on bg-ink text-paper border-ink" : "bg-sheet md:bg-transparent border-line text-ink-2 md:hover:bg-sheet"}`}>
             {isConcept(sec) && <KindBadge small />}
-            {sec.title}
-            <span className={`hidden md:inline ml-auto text-xs tabular-nums ${on ? "opacity-70" : "text-muted"}`}>{isChart(sec) ? `${totals[sec.id]}자` : n ?? totals[sec.id]}</span>
+            {/* 긴 제목은 제목만 줄바꿈되고 배지와 개수는 한 줄로 유지 */}
+            <span className="toc-t min-w-0">{sec.title}</span>
+            <span className={`hidden md:inline shrink-0 ml-auto text-xs tabular-nums ${on ? "opacity-70" : "text-muted"}`}>{isChart(sec) ? `${totals[sec.id]}자` : n ?? totals[sec.id]}</span>
           </a>
         );
       })}

@@ -6,6 +6,8 @@
 
 외국어를 처음 배우는 사람도 읽을 수 있게, 모든 외국어 문장에 **한글 발음**과 **높낮이·속도 표기**를 붙였습니다.
 
+### 🌐 [language-study-room.vercel.app](https://language-study-room.vercel.app/)
+
 ![version](https://img.shields.io/badge/version-v2.0.1-1B2433)
 ![languages](https://img.shields.io/badge/languages-KO%20%7C%20JA%20%7C%20ZH%20%7C%20EN-1E7A66)
 ![stack](https://img.shields.io/badge/React%2019%20%C2%B7%20React%20Router%208%20%C2%B7%20Tailwind%204-TypeScript-B0651C)
@@ -72,7 +74,7 @@
 </table>
 
 ## 🚀 빠른 시작
-**학습자 (사이트 이용):** 웹사이트에 접속하면 바로 쓸 수 있습니다. 가입이나 설치는 필요 없습니다. 🌐 주소는 공개 후 여기에 적습니다.
+**학습자 (사이트 이용):** 🌐 **[language-study-room.vercel.app](https://language-study-room.vercel.app/)**에 접속하면 바로 쓸 수 있습니다. 가입이나 설치는 필요 없습니다. 휴대폰에서 홈 화면에 추가하면 앱처럼 열리고, 인터넷 없이도 볼 수 있습니다.
 
 > `language-study.html` 파일만 받아서 열어도 오프라인으로 똑같이 동작합니다.
 

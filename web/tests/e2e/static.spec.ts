@@ -65,6 +65,24 @@ test.describe("prerender HTML과 구조", () => {
     await expect(page.locator(`.toc a[data-for="${id}"] .kind`)).toHaveCount(1);
   });
 
+  test("목차의 '개념' 배지는 긴 제목이나 선택 상태에서도 한 줄로 보인다", async ({ page, javaScriptEnabled, isMobile }) => {
+    test.skip(isMobile, "세로 목차는 데스크톱 전용");
+    for(const slug of ["basic", "intermediate", "advanced"]){
+      await page.goto(`/${slug}`); await ready(page, javaScriptEnabled);
+      const bad = await page.evaluate(() => [...document.querySelectorAll(".toc a .kind")]
+        .filter(b => { const r = b.getBoundingClientRect(); return r.height > 22 || r.width < 24; })
+        .map(b => b.closest("a")!.textContent));
+      expect(bad, slug).toEqual([]);
+    }
+    // 선택된 항목에서는 배지가 반전돼 배경과 구분된다
+    await page.goto("/intermediate"); await ready(page, javaScriptEnabled);
+    const first = page.locator(".toc a").first();
+    if(await first.getAttribute("aria-current")){
+      const [bg, badge] = await first.evaluate(a => [getComputedStyle(a).backgroundColor, getComputedStyle(a.querySelector(".kind")!).backgroundColor]);
+      expect(badge).not.toBe(bg);
+    }
+  });
+
   test("단계 탭 이름은 기본, 중급, 심화이고 SEO 제목이 있다", async ({ page, javaScriptEnabled }) => {
     await page.goto("/intermediate"); await ready(page, javaScriptEnabled);
     await expect(page.locator(".tabbar a span")).toHaveText(["기본", "중급", "심화"]);
