@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router";
 import { Footer, TabBar, TopBar } from "~/components/chrome";
 import { Pron } from "~/components/cells";
-import { useStages } from "~/lib/stages";
+import { TRAVEL_ID, stageMark, useStages } from "~/lib/stages";
 import { getStore } from "~/state/settings";
 import type { Route } from "./+types/home";
 
@@ -33,7 +33,7 @@ export default function Home(){
           <div>
             <h1 className="text-[32px] md:text-[clamp(34px,4.8vw,56px)] leading-[1.12] tracking-[-.028em] font-bold mb-5">한 문장을<br />네 언어로 익힙니다</h1>
             <p className="text-base md:text-lg leading-[1.7] text-ink-2 max-w-[31em] mb-6 md:mb-8">
-              한국어로 뜻을 잡고, 같은 말을 일본어, 중국어, 영어로 바로 옆에서 비교합니다. 기본, 중급, 심화 세 단계마다 문법 개념을 먼저 익히고 단어와 회화로 넘어갑니다. 외국어를 처음 배우는 분도 읽을 수 있게 모든 문장에 한글 발음과 높낮이를 붙였습니다.
+              한국어로 뜻을 잡고, 같은 말을 일본어, 중국어, 영어로 바로 옆에서 비교합니다. 기본, 중급, 심화 세 단계마다 문법 개념을 먼저 익히고 단어와 회화로 넘어가며, 여행 탭에서는 현지에서 바로 쓰는 표현과 '보여 주기 카드'를 씁니다. 외국어를 처음 배우는 분도 읽을 수 있게 모든 문장에 한글 발음과 높낮이를 붙였습니다.
             </p>
             <div className="flex flex-wrap gap-2.5">
               <Link to={`/${lastStage?.slug ?? "basic"}`} className="cta rounded-full bg-ink text-paper px-5 py-3 font-medium">
@@ -54,15 +54,15 @@ export default function Home(){
           </div>
         </section>
 
-        <section aria-label="학습 단계" className="max-w-[1240px] mx-auto px-4 md:px-8 pb-16 grid gap-4 md:grid-cols-3">
+        <section aria-label="학습 단계" className="max-w-[1240px] mx-auto px-4 md:px-8 pb-16 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
           {stages.map(st => {
             const { concepts, items } = st;
             return (
               <Link key={st.id} to={`/${st.slug}`} className="stage-card group bg-sheet border border-line rounded-2xl p-6 hover:border-ink transition-colors">
-                <div className="text-[56px] leading-[.8] font-bold tracking-tighter text-transparent mb-4" style={{ WebkitTextStroke: "1.5px var(--ink)" }} aria-hidden="true">{st.id}</div>
+                <div className="text-[56px] leading-[.8] font-bold tracking-tighter text-transparent mb-4" style={{ WebkitTextStroke: "1.5px var(--ink)" }} aria-hidden="true">{stageMark(st.id)}</div>
                 <h2 className="text-xl font-bold mb-2">{st.name}</h2>
                 <p className="text-sm text-ink-2 leading-relaxed mb-4">{st.desc}</p>
-                <p className="text-[13px] text-muted">개념 {concepts}개 · 주제 {st.sections}개 · 표현 {items}개</p>
+                <p className="text-[13px] text-muted">{st.id === TRAVEL_ID ? `장면 ${st.sections}개 · 표현 ${items}개` : `개념 ${concepts}개 · 주제 ${st.sections}개 · 표현 ${items}개`}</p>
               </Link>
             );
           })}

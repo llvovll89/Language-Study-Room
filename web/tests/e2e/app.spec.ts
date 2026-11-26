@@ -11,7 +11,7 @@ test.describe("웹앱 동작", () => {
 
   test("홈에서 기본 단계로 들어가고, 탭으로 단계를 바꾼다", async ({ page }) => {
     await page.goto("/"); await hydrated(page);
-    await expect(page.locator(".stage-card")).toHaveCount(3);
+    await expect(page.locator(".stage-card")).toHaveCount(4);
     await press(page, page.locator(".cta"));
     await expect(page).toHaveURL(/\/basic$/);
     await expect(page.locator("h1")).toContainText("기본");
@@ -166,5 +166,39 @@ test.describe("웹앱 동작", () => {
     await page.goto("/basic"); await hydrated(page);
     await scrollToSection(page, "s1-food");
     await expect(page.locator('.toc a[data-for="s1-food"]')).toHaveAttribute("aria-current", "location");
+  });
+
+  test("여행 탭: 보여 주기 카드를 크게 띄우고, 언어를 바꾸면 기억한다", async ({ page }) => {
+    await page.goto("/travel"); await hydrated(page);
+    await expect(page.locator("h1")).toContainText("여행");
+    const card = page.locator("#t-cards .show-card").first();
+    const ja = await card.locator(".ja [lang=ja]").innerText();
+    const zh = await card.locator(".zh [lang=zh-CN]").innerText();
+    await press(page, card.locator(".show-btn"));
+    const dialog = page.locator("dialog.show-dialog");
+    await expect(dialog).toBeVisible();
+    await expect(dialog.locator(".show-text")).toHaveText(ja);
+    await press(page, dialog.getByRole("radio", { name: "中文" }));
+    await expect(dialog.locator(".show-text")).toHaveText(zh);
+    await press(page, dialog.getByRole("button", { name: "🔊 들려주기" }));
+    expect((await spoken(page)).at(-1)).toEqual({ text: zh, lang: "zh-CN" });
+    await page.keyboard.press("Escape");
+    await expect(dialog).toBeHidden();
+    // 다시 열면 마지막 언어(中文)로 열린다
+    await press(page, page.locator("#t-cards .show-btn").nth(1));
+    await expect(dialog.getByRole("radio", { name: "中文" })).toHaveAttribute("aria-checked", "true");
+    await press(page, dialog.getByRole("button", { name: "닫기" }));
+    await expect(dialog).toBeHidden();
+  });
+
+  test("여행 탭: 꺼 둔 언어는 카드와 크게 보기에서도 빠진다", async ({ page }) => {
+    await page.goto("/travel"); await hydrated(page);
+    await openSettings(page);
+    await press(page, page.locator("#show-ja"));
+    await page.keyboard.press("Escape");
+    const card = page.locator("#t-cards .show-card").first();
+    await expect(card.locator("li.ja")).toHaveCount(0);
+    await press(page, card.locator(".show-btn"));
+    await expect(page.locator("dialog.show-dialog").getByRole("radio", { name: "日本語" })).toHaveCount(0);
   });
 });

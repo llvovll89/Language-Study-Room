@@ -29,12 +29,14 @@ export interface DialogSection extends SectionBase { type: "dialog"; items: Dial
 export interface PatternSection extends SectionBase { type: "pattern"; items: PatternItem[] }
 export interface TableSection extends SectionBase { type: "table"; head: string[]; rows: TableCell[][] }
 export interface ConceptSection extends SectionBase { type: "concept"; head?: string[]; rows?: TableCell[][]; items: ListItem[] }
+export interface CardSection extends SectionBase { type: "card"; items: ListItem[] }
 export interface KanaSection extends SectionBase { type: "kana" }
 export interface PinyinSection extends SectionBase { type: "pinyin" }
-export type Section = ListSection | DialogSection | PatternSection | TableSection | ConceptSection | KanaSection | PinyinSection;
+export type Section = ListSection | DialogSection | PatternSection | TableSection | ConceptSection | CardSection | KanaSection | PinyinSection;
 
 export interface Stage {
-  id: 1 | 2 | 3;
+  /** 1~3: 학습 단계, 4: 여행 */
+  id: 1 | 2 | 3 | 4;
   name: string;
   short: string;
   desc: string;
@@ -52,6 +54,7 @@ export interface Pinyin {
 }
 
 export declare const STAGES: Stage[];
+export declare const TRAVEL: Stage;
 export declare const SEION: (Kana | null)[];
 export declare const DAKUON: Kana[];
 export declare const YOON: Kana[];
