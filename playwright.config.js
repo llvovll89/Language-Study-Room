@@ -3,6 +3,8 @@ import { defineConfig, devices } from "@playwright/test";
 /* 모든 프로젝트를 offline + file:// 로 실행해서 "데이터 없는 휴대폰" 조건을 재현한다 */
 export default defineConfig({
   testDir: "./tests",
+  // tests/unit은 node --test로 따로 돌린다
+  testIgnore: "**/unit/**",
   timeout: 20_000,
   expect: { timeout: 3_000 },
   fullyParallel: true,

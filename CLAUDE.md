@@ -11,6 +11,7 @@
   - `pinyin.js`: 병음표
 - `build.mjs`: 데이터를 정적 HTML로 미리 렌더링합니다.
 - `styles.css`, `runtime.js`: 빌드할 때 HTML 안에 inline으로 들어갑니다.
+- `lib/pron.mjs`: 한글 발음 표기 변환 (build와 단위 테스트가 함께 사용)
 - `scripts/validate-data.mjs`: 데이터 검증 (빈 칸, 기호 짝, 성조 숫자와 병음 음절 수)
 - `tests/`: Playwright 테스트. 세 프로젝트로 돌립니다.
   - `iphone13-nojs`: JS 없는 아이폰
@@ -23,7 +24,10 @@
 ## 명령
 - `npm run validate`: 데이터를 검증합니다.
 - `npm run build`: HTML을 빌드합니다.
-- `npm test`: 검증, 빌드, Playwright를 차례로 돌립니다. 작업이 끝나면 반드시 실행합니다.
+- `npm run test:unit`: `node:test` 단위 테스트를 돌립니다 (`tests/unit/`).
+- `npm run test:e2e`: Playwright를 돌립니다.
+- `npm test`: 검증, 단위 테스트, 빌드, E2E를 차례로 돌립니다. 작업이 끝나면 반드시 실행합니다.
+- README의 버전 히스토리 표와 배지 버전도 버전을 올릴 때 함께 갱신합니다.
 
 ## 버전 관리 규칙 (필수)
 모든 작업은 버전 단위로 진행하고 기록을 남깁니다.
