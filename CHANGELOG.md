@@ -2,6 +2,20 @@
 
 버전 규칙과 기록 방법은 `CLAUDE.md`를 참고하세요. 앞으로의 계획은 `docs/ROADMAP.md`에 있습니다.
 
+## v2.3.1 (2026-11-26)
+### 추가 (작업 도구)
+- **커밋 전 자동 검사 hook**: `.claude/settings.json` + `scripts/hooks/pre-commit-check.mjs`
+  - Claude Code가 `git commit`을 실행하기 전에 데이터 검증과 단위 테스트(루트, 웹앱)를 돌립니다.
+  - 하나라도 실패하면 커밋을 막고 실패한 테스트 이름을 보여 줍니다.
+  - `git -C <경로> commit` 같은 형태도 감지하고, `git log --grep commit`이나 `git commit-tree`는 제외합니다.
+- **`/release` skill**: `.claude/skills/release/SKILL.md`
+  - 버전 마무리 절차를 정해진 순서로 실행합니다 (테스트 → 문서 4종 → 커밋 → PR → merge → 태그).
+- 저장소에 포함돼서 다른 PC에서 clone해도 같은 방식으로 작업합니다.
+
+### 변경
+- `.gitignore`에 `.claude/settings.local.json`(개인 설정)을 명시
+- `CLAUDE.md`에 "Claude Code 설정" 절 추가 (hook, skill, 개인 설정 안내)
+
 ## v2.3.0 (2026-11-26)
 ### 추가
 - 🇺🇸 **TOEIC 탭** (`/toeic`, 웹앱 전용, 영어만)

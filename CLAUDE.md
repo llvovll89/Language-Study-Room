@@ -76,6 +76,17 @@
 - 설치와 빌드는 `web/vercel.json`에 있습니다: 루트에서 `npm ci`, 출력은 `build/client`
 - Node 22 이상
 
+## Claude Code 설정 (저장소에 포함, 어느 PC에서든 같게 동작)
+- **`.claude/settings.json` hook**: Claude가 `git commit`을 실행하기 전에 `scripts/hooks/pre-commit-check.mjs`가 검사를 돌립니다.
+  - 검사 항목: `npm run validate`, `npm run test:unit`, `npm run web:unit`
+  - 하나라도 실패하면 커밋을 막고 실패한 테스트 이름을 보여 줍니다.
+  - 끄거나 확인하려면 `/hooks`를 엽니다.
+- **`/release` skill** (`.claude/skills/release/SKILL.md`): 버전 마무리 절차를 순서대로 실행합니다.
+  - 순서: `test:all` → 문서 4종 → 커밋 → PR → (요청 시) merge → 태그
+  - "마무리해", "PR 올리고 merge" 같은 요청에도 이 절차를 따릅니다.
+- **개인 설정** (`.claude/settings.local.json`): 커밋하지 않습니다.
+- **전역 `~/.claude/CLAUDE.md`**: 호칭, 응답 언어 같은 개인 설정은 저장소에 없습니다. 새 PC에서는 직접 복사합니다.
+
 ## 버전 관리 규칙 (필수)
 모든 작업은 버전 단위로 진행하고 기록을 남깁니다.
 

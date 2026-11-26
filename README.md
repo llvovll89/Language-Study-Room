@@ -8,7 +8,7 @@
 
 ### 🌐 [language-study-room.vercel.app](https://language-study-room.vercel.app/)
 
-![version](https://img.shields.io/badge/version-v2.3.0-1B2433)
+![version](https://img.shields.io/badge/version-v2.3.1-1B2433)
 ![languages](https://img.shields.io/badge/languages-KO%20%7C%20JA%20%7C%20ZH%20%7C%20EN-1E7A66)
 ![stack](https://img.shields.io/badge/React%2019%20%C2%B7%20React%20Router%208%20%C2%B7%20Tailwind%204-TypeScript-B0651C)
 ![pwa](https://img.shields.io/badge/PWA-offline%20ready-1E7A66)
@@ -213,6 +213,7 @@ language-study/
 
 | 버전 | 날짜 | 요약 |
 |---|---|---|
+| **v2.3.1** | 2026-11-26 | 🛠️ 작업 도구: 커밋 전 자동 검사 hook, `/release` skill (저장소에 포함, 다른 PC에서도 동일) |
 | **v2.3** | 2026-11-26 | 🇺🇸 TOEIC 탭: 공식 자료로 확인한 시험 구성, 파트별 표현 100개, 주제별 어휘 164개, Part 5 문법 12개와 문제 24개(해설) |
 | **v2.2** | 2026-11-26 | 📝 문제와 풀이: 데이터로 문제 자동 생성 (뜻, 외국어, 듣기, 빈칸 채우기), 오답 노트 |
 | **v2.1** | 2026-11-26 | ✈️ 여행 탭 (장면 11개, 표현 224개), 보여 주기 카드(전체 화면 큰 글씨, 언어 기억, 들려주기), 탭 4개 |
@@ -241,6 +242,9 @@ language-study/
   - 브랜치는 `feature/vX.Y` 또는 `fix/vX.Y.Z`로 만들고, `main`에 merge한 뒤 `vX.Y` 태그를 답니다.
   - 끝나면 `CHANGELOG.md`, 루트와 `web/`의 `package.json` `version`, ROADMAP, 이 README의 버전 히스토리를 함께 갱신합니다.
 - 자세한 작업 규칙은 [`CLAUDE.md`](CLAUDE.md)에 있습니다.
+- Claude Code로 작업할 때 쓰는 공유 설정도 저장소에 들어 있습니다.
+  - `.claude/settings.json`: 커밋 전 자동 검사 hook
+  - `.claude/skills/release`: 버전 마무리 절차
 - 라이선스: [MIT](LICENSE). 출처를 표시하면 자유롭게 쓰고 고칠 수 있습니다.
 
 <div align="center"><sub>Made for learners who start from Korean.</sub></div>
