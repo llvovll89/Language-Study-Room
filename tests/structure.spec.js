@@ -94,6 +94,22 @@ test.describe("구조와 접근성", () => {
     }
   });
 
+  test("개념 섹션은 '개념' 표시가 붙고, 비교 표와 4개 언어 예문을 보여 준다", async ({ page }) => {
+    const concepts = page.locator('.sec[data-type="concept"]');
+    expect(await concepts.count()).toBeGreaterThanOrEqual(12);
+    const first = concepts.first();
+    await expect(first.locator("h3 .kind")).toHaveText("개념");
+    await expect(first.locator("table")).toHaveCount(1);
+    expect(await first.locator(".entry").count()).toBeGreaterThanOrEqual(3);
+    // 목차에도 개념 표시
+    const id = await first.getAttribute("id");
+    await expect(page.locator(`.toc a[data-for="${id}"] .kind`)).toHaveCount(1);
+  });
+
+  test("탭 이름은 기본, 중급, 심화이다", async ({ page }) => {
+    await expect(page.locator(".tabbar a span")).toHaveText(["기본", "중급", "심화"]);
+  });
+
   test("중국어만 켜도 4열 표가 깨지지 않는다", async ({ page }) => {
     await press(page, page.locator(".view summary"));
     await press(page, page.locator('label[for="show-ja"]'));

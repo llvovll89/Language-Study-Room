@@ -43,11 +43,15 @@ test.describe("JS로 열었을 때", () => {
   });
 
   test("검색하면 맞는 항목만 남고, 없으면 안내가 나온다", async ({ page }, testInfo) => {
+    const total = await page.locator("#s1-place .count").getAttribute("data-total");
     await page.fill("#q", "station");
-    const shown = page.locator('.stage:not([hidden]) [data-text]:not([hidden])');
-    await expect(shown).toHaveCount(1);
+    const shown = page.locator('#s1-place [data-text]:not([hidden])');
     await expect(shown.first()).toContainText("駅");
-    await expect(page.locator("#s1-place .count")).toHaveText("1 / 16개");
+    const n = await shown.count();
+    expect(n).toBeGreaterThan(0);
+    await expect(page.locator("#s1-place .count")).toHaveText(`${n} / ${total}개`);
+    // 검색 중에는 맞지 않는 항목이 숨겨진다
+    expect(n).toBeLessThan(Number(total));
     await expect(page.locator("#s1-kana")).toBeHidden();
     await shot(page, testInfo, "02-search");
 
@@ -57,7 +61,7 @@ test.describe("JS로 열었을 때", () => {
 
     await page.fill("#q", "");
     await expect(page.locator("#s1-kana")).toBeVisible();
-    await expect(page.locator("#s1-place .count")).toHaveText("16개");
+    await expect(page.locator("#s1-place .count")).toHaveText(`${total}개`);
   });
 
   test("가리기: 칸을 누를 때마다 보였다 가려진다", async ({ page }) => {

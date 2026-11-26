@@ -26,9 +26,13 @@ const say = (text, lang, label) =>
 const LANGS = [["ko", "한국어"], ["ja", "日本語"], ["zh", "中文"], ["en", "English"]];
 const pronHtml = (pron, lang) => pron ? `<span class="pron">${renderPron(pron, lang)}</span>` : "";
 const koCell = ko => `<div class="cell ko" data-l="한국어" tabindex="0"><span class="txt">${esc(ko)}</span></div>`;
+/* ruby는 줄바꿈이 안 되므로 짧은 단어에만 쓰고, 문장은 읽기를 따로 한 줄로 보여 준다 */
+const RUBY_MAX = 6;
 const jaCell = ([ja, kana, pron]) => {
-  const body = kana ? `<ruby>${esc(ja)}<rt>${esc(kana)}</rt></ruby>` : esc(ja);
-  return `<div class="cell ja" data-l="日本語" tabindex="0"><div class="cell-row"><span class="txt" lang="ja">${body}</span>${say(kana || ja, "ja-JP", "일본어 발음 듣기")}</div>${pronHtml(pron, "ja")}</div>`;
+  const ruby = kana && ja.length <= RUBY_MAX && !/[。、？！?!]/.test(ja);
+  const body = ruby ? `<ruby>${esc(ja)}<rt>${esc(kana)}</rt></ruby>` : esc(ja);
+  const yomi = kana && !ruby ? `<span class="yomi" lang="ja">${esc(kana)}</span>` : "";
+  return `<div class="cell ja" data-l="日本語" tabindex="0"><div class="cell-row"><span class="txt" lang="ja">${body}</span>${say(kana || ja, "ja-JP", "일본어 발음 듣기")}</div>${yomi}${pronHtml(pron, "ja")}</div>`;
 };
 const zhCell = ([zh, py, pron]) =>
   `<div class="cell zh" data-l="中文" tabindex="0"><div class="cell-row"><span class="txt" lang="zh-CN">${esc(zh)}</span>${say(zh, "zh-CN", "중국어 발음 듣기")}</div>${py ? `<span class="py" lang="zh-Latn-pinyin">${esc(py)}</span>` : ""}${pronHtml(pron, "zh")}</div>`;
@@ -99,7 +103,11 @@ const renderPinyin = () => `<div class="kana-group"><h4>성조 4개와 경성 (�
 /* 특정 언어 전용 섹션: 해당 언어를 끄면 섹션도 숨긴다 */
 const SEC_LANG = { kana: "ja", pinyin: "zh" };
 const isChart = sec => sec.type in SEC_LANG;
-const countOf = sec => sec.type === "kana" ? KANA_TOTAL : sec.type === "pinyin" ? PINYIN_TOTAL : (sec.items || sec.rows).length;
+const countOf = sec => sec.type === "kana" ? KANA_TOTAL : sec.type === "pinyin" ? PINYIN_TOTAL : (sec.rows || []).length + (sec.items || []).length;
+/* 개념 섹션: type "concept"(비교 표 + 예문) 또는 concept:true 표시가 붙은 섹션 */
+const isConcept = sec => sec.type === "concept" || sec.concept === true;
+const renderConcept = sec => (sec.head ? renderTable(sec) : "") + (sec.items ? renderList(sec) : "");
+const KIND = '<span class="kind">개념</span>';
 const countItems = st => st.sections.reduce((n, s) => n + (isChart(s) ? 0 : countOf(s)), 0);
 const unit = sec => isChart(sec) ? "자" : "개";
 
@@ -112,12 +120,13 @@ const renderSection = sec => {
     sec.type === "list" ? renderList(sec) :
     sec.type === "dialog" ? renderDialog(sec) :
     sec.type === "pattern" ? renderPattern(sec) :
+    sec.type === "concept" ? renderConcept(sec) :
     renderTable(sec);
   const note = sec.note ? `<div class="note">${BULB}<ul>${sec.note.map(t => `<li>${esc(t)}</li>`).join("")}</ul></div>` : "";
   const count = isChart(sec) ? `<span class="count">${total}${unit(sec)}</span>` : `<span class="count" data-total="${total}">${total}개</span>`;
   const secLang = SEC_LANG[sec.type] ? ` data-lang="${SEC_LANG[sec.type]}"` : "";
-  return `<section class="sec" id="${sec.id}" data-type="${sec.type}"${secLang} aria-labelledby="${sec.id}-h">
-<header class="sec-h"><div><h3 id="${sec.id}-h">${esc(sec.title)}</h3><p class="sub"><span class="j" lang="ja">${esc(jp)}</span>${zh ? `<span class="z" lang="zh-CN">${esc(zh)}</span>` : ""}${esc(en || "")}</p></div>${count}</header>
+  return `<section class="sec" id="${sec.id}" data-type="${sec.type}"${secLang}${isConcept(sec) ? " data-concept" : ""} aria-labelledby="${sec.id}-h">
+<header class="sec-h"><div><h3 id="${sec.id}-h">${isConcept(sec) ? KIND : ""}${esc(sec.title)}</h3><p class="sub"><span class="j" lang="ja">${esc(jp)}</span>${zh ? `<span class="z" lang="zh-CN">${esc(zh)}</span>` : ""}${esc(en || "")}</p></div>${count}</header>
 ${note}${body}
 </section>`;
 };
@@ -129,7 +138,7 @@ ${st.sections.map(renderSection).join("\n")}
 </div>`;
 
 const tocHtml = STAGES.map(st => `<div class="toc-group" data-stage="${st.id}"><p class="toc-title">${st.id}단계 주제</p>${st.sections.map(sec =>
-  `<a href="#${sec.id}" data-for="${sec.id}"${SEC_LANG[sec.type] ? ` data-lang="${SEC_LANG[sec.type]}"` : ""}>${esc(sec.title)}<span>${isChart(sec) ? `${countOf(sec)}자` : countOf(sec)}</span></a>`).join("")}</div>`).join("");
+  `<a href="#${sec.id}" data-for="${sec.id}"${SEC_LANG[sec.type] ? ` data-lang="${SEC_LANG[sec.type]}"` : ""}>${isConcept(sec) ? '<em class="kind">개념</em>' : ""}${esc(sec.title)}<span>${isChart(sec) ? `${countOf(sec)}자` : countOf(sec)}</span></a>`).join("")}</div>`).join("");
 
 const stageNav = short => STAGES.map(st =>
   `<a href="#stage-${st.id}" data-stage-link="${st.id}" aria-label="${st.id}단계 ${esc(st.name)}"><b>${st.id}</b><span>${esc(short ? st.short : st.name)}</span></a>`).join("");
@@ -156,7 +165,7 @@ ${css}</style>
       <span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
       <span class="brand-text">네 언어 공부노트</span>
     </a>
-    <nav class="seg stage-seg" aria-label="학습 단계">${stageNav(false)}</nav>
+    <nav class="seg stage-seg" aria-label="학습 단계">${stageNav(true)}</nav>
     <div class="top-tools">
       <label class="search">
         <svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
@@ -199,7 +208,7 @@ ${css}</style>
 <section class="hero" id="top">
   <div>
     <h1>한 문장을<br>네 언어로 익힙니다</h1>
-    <p class="hero-lead">한국어로 뜻을 잡고, 같은 말을 일본어, 중국어, 영어로 바로 옆에서 비교합니다. 외국어를 처음 배우는 분도 읽을 수 있게 모든 문장에 한글 발음과 높낮이를 붙였습니다.</p>
+    <p class="hero-lead">한국어로 뜻을 잡고, 같은 말을 일본어, 중국어, 영어로 바로 옆에서 비교합니다. 기본, 중급, 심화 세 단계마다 문법 개념을 먼저 익히고 단어와 회화로 넘어갑니다. 외국어를 처음 배우는 분도 읽을 수 있게 모든 문장에 한글 발음과 높낮이를 붙였습니다.</p>
     <div class="sample" aria-label="예시 문장">
       <div class="sample-row ko"><span>한국어</span><p>잘 부탁드립니다</p></div>
       <div class="sample-row ja"><span>日本語</span><p lang="ja">よろしくお願いします<small>${renderPron("요[로시]쿠 오[네가이시마](스)", "ja")}</small></p></div>
