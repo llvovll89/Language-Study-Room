@@ -28,7 +28,7 @@
 - [테스트](#-테스트)
 - [버전 히스토리](#-버전-히스토리)
 - [로드맵](#-로드맵)
-- [기여 규칙](#-기여-규칙)
+- [관리 방식](#-관리-방식)
 
 ## 📖 소개
 **한국어만 아는 사람**이 일본어, 중국어, 영어를 처음 시작할 때 쓰는 공부노트입니다.
@@ -65,9 +65,11 @@
 </table>
 
 ## 🚀 빠른 시작
-**그냥 볼 때:** `language-study.html`을 브라우저로 열면 됩니다. 휴대폰에 파일만 옮겨도 오프라인으로 열립니다.
+**학습자 (사이트 이용):** 웹사이트에 접속하면 바로 쓸 수 있습니다. 가입이나 설치는 필요 없습니다. 🌐 주소는 공개 후 여기에 적습니다.
 
-**수정하고 빌드할 때:**
+> `language-study.html` 파일만 받아서 열어도 오프라인으로 똑같이 동작합니다.
+
+**관리자 (수정과 빌드):**
 ```bash
 npm install            # Playwright만 설치됩니다 (런타임 의존성 없음)
 npm run build          # data/ → language-study.html
@@ -178,10 +180,13 @@ E2E는 모두 **offline + `file://`** 로 실행해서 "데이터 없는 휴대�
 - [ ] **v1.4**: 📝 문제와 풀이
 - [ ] **v1.5**: 🇺🇸 영어 TOEIC
 
-## 🤝 기여 규칙
-- 작업마다 대상 버전을 먼저 정합니다 (`docs/ROADMAP.md`).
-- 브랜치 이름은 `feature/vX.Y` 또는 `fix/vX.Y.Z`로 짓습니다. `main`에 merge한 뒤 `vX.Y` 태그를 답니다.
-- 끝나면 `CHANGELOG.md`, `package.json`의 `version`, ROADMAP 상태를 함께 갱신합니다.
+## 🛠️ 관리 방식
+- **1인이 관리하는 개인 프로젝트**입니다. 사이트는 누구나 자유롭게 쓸 수 있지만, 코드 기여(PR)는 받지 않습니다.
+- 버전 단위로 작업합니다.
+  - 대상 버전을 먼저 정합니다 (`docs/ROADMAP.md`).
+  - 브랜치는 `feature/vX.Y` 또는 `fix/vX.Y.Z`로 만들고, `main`에 merge한 뒤 `vX.Y` 태그를 답니다.
+  - 끝나면 `CHANGELOG.md`, `package.json`의 `version`, ROADMAP, 이 README의 버전 히스토리를 함께 갱신합니다.
 - 자세한 작업 규칙은 [`CLAUDE.md`](CLAUDE.md)에 있습니다.
+- © 2026 All rights reserved. 코드와 콘텐츠의 재배포는 허용하지 않습니다.
 
 <div align="center"><sub>Made for learners who start from Korean.</sub></div>
