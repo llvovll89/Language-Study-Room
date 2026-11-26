@@ -135,7 +135,9 @@ svg.i{width:18px;height:18px;flex:none}
 .layout{max-width:1240px;margin:0 auto;padding:8px var(--gutter) 120px;display:grid;grid-template-columns:232px minmax(0,1fr);gap:48px}
 .toc{position:sticky;top:calc(var(--top-h) + 24px);align-self:start;max-height:calc(100vh - var(--top-h) - 48px);overflow:auto;scrollbar-width:thin}
 .toc-title{font-size:13px;color:var(--muted);margin:0 0 12px 12px;font-weight:500}
-.toc a{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:8px 12px;border-radius:var(--r-md);color:var(--ink-2);text-decoration:none;font-size:14px;line-height:1.4}
+.toc a{display:flex;justify-content:flex-start;align-items:center;gap:8px;padding:8px 12px;border-radius:var(--r-md);color:var(--ink-2);text-decoration:none;font-size:14px;line-height:1.4}
+.toc a > span{margin-left:auto}
+.toc a .kind{flex:none}
 .toc a span{color:var(--muted);font-size:12px;font-variant-numeric:tabular-nums}
 .toc a:hover{background:var(--sheet)}
 .toc a.on{background:var(--ink);color:var(--paper)}
@@ -153,6 +155,12 @@ svg.i{width:18px;height:18px;flex:none}
 .sub{margin:4px 0 0;color:var(--muted);font-size:14px}
 .sub .j{font-family:var(--mincho);color:var(--ink-2);margin-right:8px}
 .sub .z{font-family:var(--hanzi);color:var(--ink-2);margin-right:8px}
+/* 개념(문법) 섹션 표시 */
+.kind{display:inline-block;vertical-align:.18em;margin-right:8px;font-size:11.5px;font-weight:700;font-style:normal;letter-spacing:.02em;padding:2px 8px;border-radius:999px;background:var(--ink);color:var(--paper)}
+.toc a .kind{vertical-align:.08em;margin-right:6px;font-size:10.5px;padding:1px 6px}
+.toc a.on .kind{background:var(--paper);color:var(--ink)}
+.sec[data-concept]{border-color:var(--line-2)}
+.sec[data-type="concept"] .tbl-wrap + .colhead{margin-top:8px}
 .count{flex:none;font-size:12px;color:var(--muted);border:1px solid var(--line);border-radius:999px;padding:3px 10px;font-variant-numeric:tabular-nums;white-space:nowrap}
 
 .note{display:flex;gap:12px;margin:0 0 24px;padding:14px 18px;border-radius:var(--r-md);background:color-mix(in srgb,var(--mark) 15%,var(--sheet));border:1px solid color-mix(in srgb,var(--mark) 35%,transparent);font-size:14.5px;line-height:1.75;color:var(--ink-2)}
@@ -174,6 +182,7 @@ svg.i{width:18px;height:18px;flex:none}
 .cell{position:relative;min-width:0;padding-left:16px;border-left:2px solid var(--c)}
 .cell.ko{--c:var(--ko)} .cell.ja{--c:var(--ja)} .cell.zh{--c:var(--zh)} .cell.en{--c:var(--en)}
 .cell::before{content:attr(data-l);display:none;font-size:11px;font-weight:700;color:var(--c);margin-bottom:2px}
+.cell-row > .txt{min-width:0}
 .cell-row{display:flex;align-items:flex-start;justify-content:space-between;gap:4px}
 .txt{display:block;transition:filter .2s;word-break:keep-all;overflow-wrap:anywhere}
 .ko .txt{font-weight:500;font-size:16px}
@@ -181,7 +190,7 @@ svg.i{width:18px;height:18px;flex:none}
 .ja rt{font-family:var(--sans);font-size:.58em;color:var(--muted);letter-spacing:.02em}
 .zh .txt{font-family:var(--hanzi);font-size:18.5px;line-height:1.7;word-break:normal}
 .en .txt{font-size:15.5px;color:var(--ink-2)}
-.py{display:block;font-size:13px;color:var(--muted);letter-spacing:.01em;margin-top:1px}
+.py,.yomi{display:block;font-size:13px;color:var(--muted);letter-spacing:.01em;margin-top:1px}
 .pron{display:block;font-size:13px;color:var(--c);opacity:.9;margin-top:2px;line-height:1.9}
 /* 한글 발음 표기: 높낮이와 속도 */
 :is(.pron,.sample-row small) .hi{font-weight:700;text-decoration:overline;text-decoration-thickness:1.5px}
@@ -197,14 +206,14 @@ svg.i{width:18px;height:18px;flex:none}
 
 :root:has(#hide-ko:checked) .cell.ko:not(.shown) .txt,
 :root:has(#hide-ja:checked) .cell.ja:not(.shown) .txt,
-:root:has(#hide-ja:checked) .cell.ja:not(.shown) .pron,
+:root:has(#hide-ja:checked) .cell.ja:not(.shown) :is(.pron,.yomi),
 :root:has(#hide-zh:checked) .cell.zh:not(.shown) :is(.txt,.py,.pron),
 :root:has(#hide-en:checked) .cell.en:not(.shown) :is(.txt,.pron){filter:blur(7px);user-select:none;-webkit-user-select:none}
 :root:has(#hide-ko:checked) .cell.ko,:root:has(#hide-ja:checked) .cell.ja,:root:has(#hide-zh:checked) .cell.zh,:root:has(#hide-en:checked) .cell.en{cursor:pointer}
 /* JS 없이 열었을 때: 칸을 누르면(focus) 그 칸만 보임 */
-.no-js .cell:focus :is(.txt,.py,.pron){filter:none !important}
+.no-js .cell:focus :is(.txt,.py,.yomi,.pron){filter:none !important}
 .cell:focus:not(:focus-visible){outline:none}
-:root:has(#show-pron:not(:checked)) :is(.pron,.py,.ja rt){display:none}
+:root:has(#show-pron:not(:checked)) :is(.pron,.py,.yomi,.ja rt){display:none}
 
 /* 공부할 언어 선택: 끈 언어의 열, 태그, 전용 섹션을 숨긴다 (JS 없이도 동작) */
 :root:has(#show-ja:not(:checked)) :is(.cell.ja,.colhead [data-c="ja"],.tag.ja,.l-ja,.sample-row.ja,.sec[data-lang="ja"],.toc a[data-lang="ja"]),

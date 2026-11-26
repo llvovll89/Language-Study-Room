@@ -13,7 +13,7 @@ test.describe("JS 없이 열었을 때", () => {
     await expect(page.locator("html")).toHaveClass("no-js");
     for(const id of [1, 2, 3]) await expect(page.locator(`#stage-${id}`)).toBeVisible();
     await expect(page.locator("#s1-greet .entry").first()).toContainText("안녕하세요");
-    await expect(page.locator("#s3-dev .entry")).toHaveCount(12);
+    expect(await page.locator("#s3-dev .entry").count()).toBeGreaterThanOrEqual(12);
     expect(await page.locator("[data-text]").count()).toBeGreaterThan(300);
     await shot(page, testInfo, "01-top");
   });

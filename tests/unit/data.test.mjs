@@ -4,7 +4,7 @@ import assert from "node:assert/strict";
 import { STAGES, SEION, DAKUON, YOON, PINYIN } from "../../data/index.js";
 
 const sections = STAGES.flatMap(st => st.sections.map(sec => ({ st, sec })));
-const TYPES = ["list", "dialog", "pattern", "table", "kana", "pinyin"];
+const TYPES = ["list", "dialog", "pattern", "table", "concept", "kana", "pinyin"];
 
 test("단계는 1, 2, 3 순서이고 이름과 설명이 있다", () => {
   assert.deepEqual(STAGES.map(s => s.id), [1, 2, 3]);
@@ -52,4 +52,42 @@ test("가나표와 병음표 개수", () => {
   assert.equal(PINYIN.tones.length, 5);
   assert.deepEqual(PINYIN.tones.map(t => t[2]), [1, 2, 3, 4, 0]);
   assert.equal(PINYIN.initials.length, 21);
+});
+
+/* v1.2: 기본/중급/심화 구성 */
+test("단계 이름은 기본, 중급, 심화이다", () => {
+  assert.deepEqual(STAGES.map(s => s.short), ["기본", "중급", "심화"]);
+});
+
+test("단계마다 개념 섹션이 단어·회화보다 먼저 나온다", () => {
+  const isConcept = s => s.type === "concept" || s.concept === true;
+  const chart = s => s.type === "kana" || s.type === "pinyin";
+  for(const st of STAGES){
+    const body = st.sections.filter(s => !chart(s));
+    const firstNon = body.findIndex(s => !isConcept(s));
+    assert.ok(firstNon > 0, `${st.short}: 개념 섹션이 맨 앞에 없음`);
+    assert.ok(body.slice(firstNon).every(s => !isConcept(s)), `${st.short}: 개념 섹션이 중간에 섞임`);
+    assert.ok(st.sections.filter(s => s.type === "concept").length >= 4, `${st.short}: 새 개념 섹션 4개 이상`);
+  }
+});
+
+test("개념 섹션은 비교 표와 예문 3개 이상을 가진다", () => {
+  for(const { sec } of sections.filter(({ sec }) => sec.type === "concept")){
+    assert.ok(sec.head && sec.rows.length >= 3, `${sec.id}: 비교 표`);
+    assert.ok(sec.items.length >= 3, `${sec.id}: 예문`);
+    assert.ok(sec.note && sec.note.length >= 2, `${sec.id}: 설명`);
+  }
+});
+
+test("기본 단어 섹션은 20개, 심화 상황 섹션은 12개 이상이다", () => {
+  for(const sec of STAGES[0].sections.filter(s => s.type === "list")) assert.ok(sec.items.length >= 20, `${sec.id}: ${sec.items.length}`);
+  for(const sec of STAGES[2].sections.filter(s => s.type === "list")) assert.ok(sec.items.length >= 12, `${sec.id}: ${sec.items.length}`);
+});
+
+test("같은 단계 안에서 같은 한국어 항목이 두 번 나오지 않는다", () => {
+  for(const st of STAGES){
+    const kos = st.sections.filter(s => s.type === "list").flatMap(s => s.items.map(it => it[0]));
+    const dup = kos.filter((k, i) => kos.indexOf(k) !== i);
+    assert.deepEqual(dup, [], `${st.short}`);
+  }
 });

@@ -39,16 +39,18 @@ for(const st of STAGES){
   for(const sec of st.sections){
     const id = sec.id;
     if(sec.sub.split(" / ").length !== 3 || sec.sub.split(" / ").some(s => !s.trim())) err(id, "sub는 '日 / 中 / EN' 3칸", sec.sub);
-    if(sec.type === "table"){
-      sec.rows.forEach((r, i) => {
+    if(/^日 \/ 中 \/ EN$/.test(sec.sub)) err(id, "sub가 형식 예시 그대로임", sec.sub);
+    if(sec.type === "table" || sec.type === "concept"){
+      (sec.rows || []).forEach((r, i) => {
         if(r.length !== sec.head.length) err(`${id}#${i}`, "열 개수 불일치", r);
         r.forEach((c, j) => { if(c === "" && sec.head[j] !== "") err(`${id}#${i}`, `빈 칸 (${sec.head[j]})`, r); });
       });
-      continue;
+      if(sec.type === "table") continue;
+      if(!sec.items || sec.items.length < 3) err(id, "개념 섹션에는 예문(items)이 3개 이상 필요", sec.items?.length);
     }
     (sec.items || []).forEach((it, i) => {
       const key = `${id}#${i}`;
-      if(sec.type === "list"){
+      if(sec.type === "list" || sec.type === "concept"){
         const [ko, [ja, , jp], [zh, py, zp], [en, ep]] = it;
         if(!ko) err(key, "한국어 비어 있음", it);
         checkJa(key, ja, jp); checkZh(key, zh, py, zp); checkEn(key, en, ep);
