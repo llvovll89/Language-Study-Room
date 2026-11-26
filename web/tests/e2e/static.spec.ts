@@ -8,6 +8,16 @@ const VERSION = `v${version.replace(/\.0$/, "")}`;
 const ready = async (page: import("@playwright/test").Page, js: boolean | undefined) => { if(js !== false) await hydrated(page); };
 
 test.describe("prerender HTML과 구조", () => {
+  test("JS 없이도 여행 탭의 보여 주기 카드 내용이 HTML에 있다", async ({ page, javaScriptEnabled }) => {
+    test.skip(javaScriptEnabled !== false, "JS 끔 전용");
+    await page.goto("/travel");
+    const cards = page.locator("#t-cards .show-card");
+    expect(await cards.count()).toBeGreaterThanOrEqual(20);
+    await expect(cards.first().locator(".ja [lang=ja]")).toBeVisible();
+    // 크게 보기 버튼은 JS가 있을 때만
+    await expect(page.locator(".show-btn")).toHaveCount(0);
+  });
+
   test("JS 없이도 단계 내용과 단계 링크가 HTML에 있다", async ({ page, javaScriptEnabled }) => {
     test.skip(javaScriptEnabled !== false, "JS 끔 전용");
     await page.goto("/basic");
@@ -23,7 +33,7 @@ test.describe("prerender HTML과 구조", () => {
     await expect(page.locator("footer .ver")).toHaveText(VERSION);
   });
 
-  for(const slug of ["basic", "intermediate", "advanced"]){
+  for(const slug of ["basic", "intermediate", "advanced", "travel"]){
     test(`${slug}: id 중복 없음, 링크 대상 있음, 모든 항목에 4개 언어와 발음`, async ({ page, javaScriptEnabled }) => {
       await page.goto(`/${slug}`); await ready(page, javaScriptEnabled);
       const r = await page.evaluate(() => {
@@ -85,7 +95,7 @@ test.describe("prerender HTML과 구조", () => {
 
   test("단계 탭 이름은 기본, 중급, 심화이고 SEO 제목이 있다", async ({ page, javaScriptEnabled }) => {
     await page.goto("/intermediate"); await ready(page, javaScriptEnabled);
-    await expect(page.locator(".tabbar a span")).toHaveText(["기본", "중급", "심화"]);
+    await expect(page.locator(".tabbar a span")).toHaveText(["기본", "중급", "심화", "여행"]);
     await expect(page).toHaveTitle(/2단계 중급/);
     await expect(page.locator('meta[name="description"]')).toHaveAttribute("content", /.+/);
   });

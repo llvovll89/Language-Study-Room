@@ -2,7 +2,7 @@ import { useEffect, useRef, useState, type ReactNode } from "react";
 import { Link, NavLink } from "react-router";
 import type { Section as SectionT } from "@data";
 import { isChart, isConcept } from "~/lib/sections";
-import { LANG_LABEL, SECTION_LANG, useStages, type LangCode } from "~/lib/stages";
+import { LANG_LABEL, SECTION_LANG, stageLabel, stageMark, useStages, type LangCode } from "~/lib/stages";
 import { useSettings } from "~/state/settings";
 import { KindBadge } from "./sections";
 
@@ -19,20 +19,20 @@ const BrandMark = () => (
 export const StageTabs = () => { const stages = useStages(); return (
   <nav aria-label="학습 단계" className="stage-seg hidden md:inline-flex bg-sheet border border-line rounded-full p-[3px] gap-0.5">
     {stages.map(st => (
-      <NavLink key={st.id} to={`/${st.slug}`} aria-label={`${st.id}단계 ${st.name}`}
+      <NavLink key={st.id} to={`/${st.slug}`} aria-label={`${stageLabel(st.id)} ${st.name}`}
         className={({ isActive }) => `rounded-full px-4 min-h-[34px] text-sm font-medium flex gap-1.5 items-center whitespace-nowrap transition-colors ${isActive ? "bg-ink text-paper" : "text-muted hover:text-ink"}`}>
-        <b className="font-bold tabular-nums">{st.id}</b><span>{st.short}</span>
+        <b className="font-bold tabular-nums">{stageMark(st.id)}</b><span>{st.short}</span>
       </NavLink>
     ))}
   </nav>
 ); };
 
 export const TabBar = () => { const stages = useStages(); return (
-  <nav aria-label="학습 단계" className="tabbar md:hidden grid grid-cols-3 gap-1 fixed inset-x-0 bottom-0 z-40 px-2 pt-1.5 pb-[calc(6px+env(safe-area-inset-bottom))] bg-paper border-t border-line">
+  <nav aria-label="학습 단계" className="tabbar md:hidden grid grid-cols-4 gap-1 fixed inset-x-0 bottom-0 z-40 px-2 pt-1.5 pb-[calc(6px+env(safe-area-inset-bottom))] bg-paper border-t border-line">
     {stages.map(st => (
-      <NavLink key={st.id} to={`/${st.slug}`} aria-label={`${st.id}단계 ${st.name}`}
+      <NavLink key={st.id} to={`/${st.slug}`} aria-label={`${stageLabel(st.id)} ${st.name}`}
         className={({ isActive }) => `flex flex-col items-center justify-center gap-0.5 min-h-[54px] rounded-xl text-xs font-medium ${isActive ? "text-ink bg-sheet ring-1 ring-line" : "text-muted"}`}>
-        <b className="text-[19px] leading-tight font-bold">{st.id}</b><span>{st.short}</span>
+        <b className="text-[19px] leading-tight font-bold">{stageMark(st.id)}</b><span>{st.short}</span>
       </NavLink>
     ))}
   </nav>
@@ -137,7 +137,7 @@ export function Toc({ stageId, sections, counts, totals, active }: { stageId: nu
   return (
     <nav ref={ref} id="toc" aria-label="주제 목록"
       className="toc no-scrollbar sticky top-[60px] md:top-[88px] z-20 self-start flex md:block gap-1.5 overflow-x-auto md:overflow-auto md:max-h-[calc(100vh-112px)] -mx-4 md:mx-0 mb-4 md:mb-0 px-4 md:px-0 py-2.5 md:py-0 bg-paper md:bg-transparent border-b border-line md:border-0">
-      <p className="hidden md:block text-[13px] text-muted mb-3 ml-3 font-medium">{stageId}단계 주제</p>
+      <p className="hidden md:block text-[13px] text-muted mb-3 ml-3 font-medium">{stageLabel(stageId)} 주제</p>
       {sections.map(sec => {
         const lang = SECTION_LANG[sec.type];
         if(lang && !show[lang]) return null;

@@ -1,6 +1,6 @@
 /* 데이터 검증: node scripts/validate-data.mjs
    빈 칸, 괄호 짝, 중국어 성조 숫자 개수와 병음 음절 수 일치를 확인한다 */
-import { STAGES, PINYIN } from "../data/index.js";
+import { STAGES, TRAVEL, PINYIN } from "../data/index.js";
 
 const errors = [];
 const PY_SYL = /[a-zāáǎàēéěèīíǐìōóǒòūúǔùǖǘǚǜü]+/gi;
@@ -35,7 +35,7 @@ const checkZh = (id, zh, py, pron) => {
   checkMarkup(id, pron);
 };
 
-for(const st of STAGES){
+for(const st of [...STAGES, TRAVEL]){
   for(const sec of st.sections){
     const id = sec.id;
     if(sec.sub.split(" / ").length !== 3 || sec.sub.split(" / ").some(s => !s.trim())) err(id, "sub는 '日 / 中 / EN' 3칸", sec.sub);
@@ -48,9 +48,10 @@ for(const st of STAGES){
       if(sec.type === "table") continue;
       if(!sec.items || sec.items.length < 3) err(id, "개념 섹션에는 예문(items)이 3개 이상 필요", sec.items?.length);
     }
+    if(st === TRAVEL && (!sec.items || sec.items.length < 12)) err(id, "여행 섹션은 항목 12개 이상", sec.items?.length);
     (sec.items || []).forEach((it, i) => {
       const key = `${id}#${i}`;
-      if(sec.type === "list" || sec.type === "concept"){
+      if(sec.type === "list" || sec.type === "concept" || sec.type === "card"){
         const [ko, [ja, , jp], [zh, py, zp], [en, ep]] = it;
         if(!ko) err(key, "한국어 비어 있음", it);
         checkJa(key, ja, jp); checkZh(key, zh, py, zp); checkEn(key, en, ep);

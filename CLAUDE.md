@@ -16,6 +16,7 @@
 ## 구조
 - `data/`: 학습 데이터. 형식은 `data/index.js` 주석에 있고, 타입은 `data/index.d.ts`에 있습니다.
   - `stage1~3.js`: 단계별 데이터
+  - `travel.js` (+ `travel-talk.js`, `travel-read.js`): 여행 탭 (웹앱 전용, 단일 HTML에는 없음)
   - `kana.js`: 가나표
   - `pinyin.js`: 병음표
 - `lib/pron.mjs`: 한글 발음 표기 변환
@@ -26,12 +27,13 @@
 - 단일 HTML: `build.mjs`, `styles.css`, `runtime.js`
 - `tests/`: 단일 HTML용 E2E(iphone13-nojs, iphone13-js, desktop-chromium)와 공용 단위 테스트(`tests/unit/`)
 - `web/`
-  - `react-router.config.ts`: `ssr:false`이고 4개 경로를 prerender합니다 (`/`, `/basic`, `/intermediate`, `/advanced`).
+  - `react-router.config.ts`: `ssr:false`이고 5개 경로를 prerender합니다 (`/`, `/basic`, `/intermediate`, `/advanced`, `/travel`).
   - `app/routes/`: `home.tsx`, `stage.tsx`(`/:stage`)
   - `app/components/`
     - `cells.tsx`: 언어별 칸, 발음, 듣기 버튼
     - `sections.tsx`: 섹션 type별 본문, 표, 글자표
     - `chrome.tsx`: 상단 바, 탭, 목차, 설정 패널
+    - `showcards.tsx`: 여행 탭 보여 주기 카드와 전체 화면 `<dialog>`
   - `app/state/settings.tsx`: 공부할 언어, 가리기, 발음 표시 (localStorage `tri.langs`, `tri.pron`, `tri.slug`)
   - `app/app.css`
     - `@theme`: 디자인 토큰

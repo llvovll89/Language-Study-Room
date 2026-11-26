@@ -5,6 +5,7 @@
    table:   head/rows 칸은 문자열 또는 [텍스트, 한글 발음]
    concept: 개념(문법) 섹션. head/rows(언어 비교 표, 선택) + items(list 형식 예문, 3개 이상)
             table 섹션에 concept:true를 붙이면 "개념" 표시만 붙는다
+   card:    보여 주기 카드 (list와 같은 형식, 웹앱 여행 탭)
    sub:     "日本語 / 中文 / English"
 */
 import { STAGE1 } from "./stage1.js";
@@ -14,3 +15,5 @@ import { STAGE3 } from "./stage3.js";
 export { SEION, DAKUON, YOON } from "./kana.js";
 export { PINYIN } from "./pinyin.js";
 export const STAGES = [STAGE1, STAGE2, STAGE3];
+/* 여행 탭 (웹앱 전용, 단일 HTML에는 넣지 않음) */
+export { TRAVEL } from "./travel.js";

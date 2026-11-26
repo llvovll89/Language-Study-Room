@@ -2,9 +2,16 @@ import type { Locator, Page } from "@playwright/test";
 
 export const isMobile = (page: Page) => (page.viewportSize()?.width ?? 0) < 768;
 
-/* 모바일은 tap, 데스크톱은 click */
+/* 모바일은 tap, 데스크톱은 click
+   모바일은 하단 탭바(fixed)에 가리지 않게 요소를 화면 가운데로 옮긴 뒤 누른다 */
 export const press = async (page: Page, locator: Locator) => {
-  if(isMobile(page)) await locator.tap();
+  if(isMobile(page)){
+    await locator.evaluate(el => {
+      document.documentElement.style.scrollBehavior = "auto";
+      if(!el.closest(".top, .tabbar, dialog")) el.scrollIntoView({ block: "center" });
+    });
+    await locator.tap();
+  }
   else await locator.click();
 };
 

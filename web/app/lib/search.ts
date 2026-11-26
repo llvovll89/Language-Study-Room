@@ -13,6 +13,7 @@ const cellText = (c: TableCell) => (Array.isArray(c) ? c[0] : c);
 export const sectionKeys = (sec: Section): string[] => {
   switch(sec.type){
     case "list":
+    case "card":
       return sec.items.map(([ko, [ja, kana, jp], zh, en]) => key([ko, ...langParts(ja, kana, jp, zh, en)]));
     case "dialog":
       return sec.items.map(([who, ko, [ja, jp], zh, en]) => key([who, ko, ...langParts(ja, "", jp, zh, en)]));

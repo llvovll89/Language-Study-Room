@@ -91,3 +91,26 @@ test("같은 단계 안에서 같은 한국어 항목이 두 번 나오지 않�
     assert.deepEqual(dup, [], `${st.short}`);
   }
 });
+
+/* v2.1: 여행 탭 (웹앱 전용) */
+import { TRAVEL } from "../../data/index.js";
+
+test("여행 탭: id 4, 보여 주기 카드가 맨 앞, 장면 섹션은 12개 이상", () => {
+  assert.equal(TRAVEL.id, 4);
+  assert.equal(TRAVEL.short, "여행");
+  assert.equal(TRAVEL.sections[0].type, "card");
+  assert.ok(TRAVEL.sections[0].items.length >= 20, "보여 주기 카드 20개 이상");
+  for(const sec of TRAVEL.sections){
+    assert.match(sec.id, /^t-[a-z-]+$/);
+    assert.ok(["list", "card"].includes(sec.type), `${sec.id}: ${sec.type}`);
+    assert.ok(sec.items.length >= 12, `${sec.id}: ${sec.items.length}`);
+    assert.ok(sec.note && sec.note.length >= 2, `${sec.id}: 설명`);
+  }
+});
+
+test("여행 탭 섹션 id는 학습 단계와 겹치지 않고, 같은 한국어 항목이 두 번 나오지 않는다", () => {
+  const stageIds = new Set(STAGES.flatMap(st => st.sections.map(s => s.id)));
+  for(const sec of TRAVEL.sections) assert.ok(!stageIds.has(sec.id), sec.id);
+  const kos = TRAVEL.sections.flatMap(s => s.items.map(it => it[0]));
+  assert.deepEqual(kos.filter((k, i) => kos.indexOf(k) !== i), []);
+});

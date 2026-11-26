@@ -10,6 +10,8 @@ interface Settings {
   hide: Record<LangCode, boolean>;
   showPron: boolean;
   tts: boolean;
+  /** 하이드레이션이 끝나 JS 기능을 쓸 수 있음 */
+  ready: boolean;
   toggleShow: (l: Foreign) => void;
   toggleHide: (l: LangCode) => void;
   togglePron: () => void;
@@ -30,6 +32,7 @@ export function SettingsProvider({ children }: { children: ReactNode }){
   const [hide, setHide] = useState(NONE_HIDDEN);
   const [showPron, setShowPron] = useState(true);
   const [tts, setTts] = useState(false);
+  const [ready, setReady] = useState(false);
 
   useEffect(() => {
     const langs = store.get("tri.langs");
@@ -39,6 +42,7 @@ export function SettingsProvider({ children }: { children: ReactNode }){
     }
     if(store.get("tri.pron") === "0") setShowPron(false);
     setTts(canSpeak());
+    setReady(true);
   }, []);
 
   const toggleShow = useCallback((l: Foreign) => setShow(prev => {
@@ -49,8 +53,8 @@ export function SettingsProvider({ children }: { children: ReactNode }){
   const toggleHide = useCallback((l: LangCode) => setHide(prev => ({ ...prev, [l]: !prev[l] })), []);
   const togglePron = useCallback(() => setShowPron(prev => { store.set("tri.pron", prev ? "0" : "1"); return !prev; }), []);
 
-  const value = useMemo(() => ({ show, hide, showPron, tts, toggleShow, toggleHide, togglePron }),
-    [show, hide, showPron, tts, toggleShow, toggleHide, togglePron]);
+  const value = useMemo(() => ({ show, hide, showPron, tts, ready, toggleShow, toggleHide, togglePron }),
+    [show, hide, showPron, tts, ready, toggleShow, toggleHide, togglePron]);
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>;
 }
 

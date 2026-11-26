@@ -5,7 +5,7 @@ import { ChartsContext, Section } from "~/components/sections";
 import { stagePayload } from "~/lib/content.server";
 import { matches, sectionKeys } from "~/lib/search";
 import { isChart } from "~/lib/sections";
-import { SECTION_LANG, SLUGS } from "~/lib/stages";
+import { SECTION_LANG, SLUGS, stageLabel, stageMark } from "~/lib/stages";
 import { getStore, useSettings } from "~/state/settings";
 import type { Route } from "./+types/stage";
 
@@ -21,7 +21,7 @@ export const meta: Route.MetaFunction = ({ loaderData }) => {
   const st = loaderData?.stage;
   if(!st) return [{ title: "네 언어 공부노트" }];
   return [
-    { title: `${st.id}단계 ${st.name} · 네 언어 공부노트` },
+    { title: `${stageLabel(st.id)} ${st.name} · 네 언어 공부노트` },
     { name: "description", content: st.desc },
   ];
 };
@@ -73,9 +73,9 @@ export default function StagePage({ loaderData }: Route.ComponentProps){
         <Toc stageId={stage.id} sections={stage.sections} counts={counts} totals={totals} active={active} />
         <main id="main" className="stage min-w-0" data-stage={stage.id}>
           <div className="stage-head grid md:grid-cols-[auto_minmax(0,1fr)] gap-3 md:gap-7 items-end pt-4 md:pt-8 pb-6 md:pb-8 mb-5 md:mb-8 border-b border-line">
-            <div aria-hidden="true" className="stage-num text-[64px] md:text-[112px] leading-[.78] font-bold tracking-tighter text-transparent select-none" style={{ WebkitTextStroke: "1.5px var(--ink)" }}>{stage.id}</div>
+            <div aria-hidden="true" className="stage-num text-[64px] md:text-[112px] leading-[.78] font-bold tracking-tighter text-transparent select-none" style={{ WebkitTextStroke: "1.5px var(--ink)" }}>{stageMark(stage.id)}</div>
             <div>
-              <h1 className="text-[26px] md:text-[clamp(26px,3vw,34px)] leading-tight tracking-tight font-bold mb-2"><span className="sr-only">{stage.id}단계 </span>{stage.name}</h1>
+              <h1 className="text-[26px] md:text-[clamp(26px,3vw,34px)] leading-tight tracking-tight font-bold mb-2"><span className="sr-only">{stageLabel(stage.id)} </span>{stage.name}</h1>
               <p className="m-0 text-ink-2 max-w-[40em]">{stage.desc}</p>
               <p className="stage-meta mt-3 text-[13px] text-muted">주제 {stage.sections.length}개, 표현 {total}개</p>
             </div>
@@ -85,8 +85,8 @@ export default function StagePage({ loaderData }: Route.ComponentProps){
           </ChartsContext.Provider>
           {shown.length === 0 && (
             <div className="empty-state py-16 px-6 text-center text-muted border border-dashed border-line-2 rounded-2xl">
-              <strong className="block text-ink text-[17px] mb-1.5">"{q.trim()}"와 맞는 표현이 {stage.id}단계에 없습니다</strong>
-              <span>다른 단계를 누르거나 검색어를 짧게 바꿔 보세요.</span>
+              <strong className="block text-ink text-[17px] mb-1.5">"{q.trim()}"와 맞는 표현이 {stageLabel(stage.id)}에 없습니다</strong>
+              <span>다른 탭을 누르거나 검색어를 짧게 바꿔 보세요.</span>
             </div>
           )}
         </main>

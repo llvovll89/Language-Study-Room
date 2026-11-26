@@ -23,7 +23,7 @@ test.describe("PWA", () => {
     await expect.poll(() => page.evaluate(() => !!navigator.serviceWorker.controller)).toBe(true);
 
     await context.setOffline(true);
-    for(const slug of ["basic", "intermediate", "advanced"]){
+    for(const slug of ["basic", "intermediate", "advanced", "travel"]){
       await page.goto(`/${slug}`);
       await expect(page.locator(".stage-head h1")).toBeVisible();
       await expect(page.locator(".entry").first()).toBeVisible();
