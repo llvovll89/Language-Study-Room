@@ -1,6 +1,6 @@
 {
   "name": "language-study",
-  "version": "2.1.0",
+  "version": "2.2.0",
   "private": true,
   "license": "MIT",
   "type": "module",
@@ -13,7 +13,8 @@
     "web:dev": "npm run dev -w web",
     "web:build": "npm run build -w web",
     "web:test": "npm run build -w web && npm run test -w web",
-    "test:all": "npm test && npm run web:test"
+    "test:all": "npm test && npm run web:unit && npm run web:test",
+    "web:unit": "node --test \"web/tests/unit/*.test.ts\""
   },
   "devDependencies": {
     "@playwright/test": "^1.65.1"

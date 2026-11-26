@@ -201,4 +201,90 @@ test.describe("웹앱 동작", () => {
     await press(page, card.locator(".show-btn"));
     await expect(page.locator("dialog.show-dialog").getByRole("radio", { name: "日本語" })).toHaveCount(0);
   });
+
+  /* v2.2 문제와 풀이 */
+  /* 모든 문제에서 첫 보기를 고른다. 고른 뒤에는 정답 보기가 정확히 하나 표시돼야 한다 */
+  const answerAll = async (page: import("@playwright/test").Page) => {
+    const dialog = page.locator("dialog.quiz-dialog");
+    const total = Number((await dialog.locator(".quiz-progress").innerText()).split("/")[1]);
+    for(let n = 0; n < total; n++){
+      await expect(dialog.locator(".quiz-progress")).toHaveText(`${n + 1} / ${total}`);
+      await press(page, dialog.locator(".quiz-choices button").first());
+      await expect(dialog.locator(".quiz-feedback")).toBeVisible();
+      await expect(dialog.locator('.quiz-choices [data-state="correct"]')).toHaveCount(1);
+      await press(page, dialog.locator(".quiz-next"));
+    }
+    return { dialog, total };
+  };
+
+  test("문제 풀기: 10문제를 풀면 점수가 나오고, 틀린 문제는 오답 노트로 다시 푼다", async ({ page }) => {
+    await page.goto("/basic"); await hydrated(page);
+    const sec = page.locator("#s1-food");
+    await press(page, sec.locator(".quiz-start"));
+    const { dialog, total } = await answerAll(page);
+    expect(total).toBe(10);
+    const result = await dialog.locator(".quiz-result p").first().innerText();
+    const score = Number(result.split("/")[0].trim());
+    await press(page, dialog.getByRole("button", { name: "닫기" }).last());
+    await expect(dialog).toHaveCount(0);
+
+    const wrong = await page.evaluate(() => JSON.parse(localStorage.getItem("tri.wrong") || "[]").filter((id: string) => id.startsWith("s1-food:")).length);
+    expect(wrong).toBe(10 - score);
+    if(wrong > 0){
+      await expect(sec.locator(".quiz-retry")).toContainText(String(wrong));
+      await press(page, sec.locator(".quiz-retry"));
+      await expect(page.locator("dialog.quiz-dialog .quiz-progress")).toHaveText(`1 / ${wrong}`);
+    } else {
+      await expect(sec.locator(".quiz-retry")).toHaveCount(0);
+    }
+  });
+
+  test("문제 풀기: 공부할 언어로 켠 언어로만 출제한다", async ({ page }) => {
+    await page.goto("/intermediate"); await hydrated(page);
+    await openSettings(page);
+    await press(page, page.locator("#show-ja"));
+    await press(page, page.locator("#show-zh"));
+    await page.keyboard.press("Escape");
+    await press(page, page.locator("#s2-c-tense .quiz-start"));
+    const dialog = page.locator("dialog.quiz-dialog");
+    for(let n = 0; n < 5; n++){
+      await expect(dialog.locator(".quiz-type")).toContainText("English");
+      await press(page, dialog.locator(".quiz-choices button").first());
+      await press(page, dialog.locator(".quiz-next"));
+    }
+  });
+
+  test("문제 풀기: 검색 중에는 숨기고, 정답 확인 때 발음과 뜻을 보여 준다", async ({ page }) => {
+    await page.goto("/travel"); await hydrated(page);
+    await press(page, page.locator("#t-hotel .quiz-start"));
+    const dialog = page.locator("dialog.quiz-dialog");
+    await press(page, dialog.locator(".quiz-choices button").nth(1));
+    const fb = dialog.locator(".quiz-feedback");
+    await expect(fb.locator(".pron")).toBeVisible();
+    await expect(fb).toContainText(/정답입니다|아쉬워요/);
+    await page.keyboard.press("Escape");
+    await page.fill("#q", "체크");
+    await expect(page.locator(".quiz-start")).toHaveCount(0);
+  });
+
+  test("음성 엔진이 불완전해도(Utterance 없음) 문제 풀기가 끝까지 진행된다", async ({ browser }) => {
+    const ctx = await browser.newContext();
+    const page = await ctx.newPage();
+    await page.addInitScript(() => {
+      Object.defineProperty(window, "speechSynthesis", { configurable: true, value: { cancel(){}, speak(){} } });
+      Object.defineProperty(window, "SpeechSynthesisUtterance", { configurable: true, value: undefined });
+      delete (window as unknown as Record<string, unknown>).SpeechSynthesisUtterance;
+    });
+    await page.goto("/intermediate"); await hydrated(page);
+    await page.locator("#s2-c-tense .quiz-start").click();
+    const dialog = page.locator("dialog.quiz-dialog");
+    const total = Number((await dialog.locator(".quiz-progress").innerText()).split("/")[1]);
+    for(let n = 0; n < total; n++){
+      await expect(dialog.locator(".quiz-progress")).toHaveText(`${n + 1} / ${total}`);
+      await dialog.locator(".quiz-choices button").first().click();
+      await dialog.locator(".quiz-next").click();
+    }
+    await expect(dialog.locator(".quiz-result")).toBeVisible();
+    await ctx.close();
+  });
 });

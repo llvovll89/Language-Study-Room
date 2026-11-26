@@ -34,6 +34,8 @@
     - `sections.tsx`: 섹션 type별 본문, 표, 글자표
     - `chrome.tsx`: 상단 바, 탭, 목차, 설정 패널
     - `showcards.tsx`: 여행 탭 보여 주기 카드와 전체 화면 `<dialog>`
+    - `quiz.tsx`: 섹션 아래 문제 풀기와 오답 노트
+  - `app/lib/quiz.ts`: 문제 자동 생성 (순수 함수, 난수 주입). 단위 테스트 `web/tests/unit/` (Node type stripping으로 바로 실행)
   - `app/state/settings.tsx`: 공부할 언어, 가리기, 발음 표시 (localStorage `tri.langs`, `tri.pron`, `tri.slug`)
   - `app/app.css`
     - `@theme`: 디자인 토큰
@@ -53,7 +55,8 @@
 | `npm run web:dev` | 웹앱 개발 서버 |
 | `npm run web:build` | 웹앱 빌드 (prerender + 서비스 워커) |
 | `npm run web:test` | 웹앱 빌드 → E2E |
-| `npm run test:all` | 위 둘 모두. **작업이 끝나면 반드시 실행** |
+| `npm run web:unit` | 웹앱 단위 테스트 (`web/tests/unit/*.test.ts`) |
+| `npm run test:all` | 위 모두. **작업이 끝나면 반드시 실행** |
 | `npm run validate` | 데이터 검증만 |
 | `npm run test:unit` | 단위 테스트만 |
 
