@@ -6,6 +6,8 @@
    concept: 개념(문법) 섹션. head/rows(언어 비교 표, 선택) + items(list 형식 예문, 3개 이상)
             table 섹션에 concept:true를 붙이면 "개념" 표시만 붙는다
    card:    보여 주기 카드 (list와 같은 형식, 웹앱 여행 탭)
+   toeic:   [영어, 영어 한글 발음, 한국어 뜻, 영어 예문, 예문 뜻] (TOEIC 탭)
+   problems:[문제(빈칸 "_____"), [보기 4개], 정답 index, 해설, 문법 포인트] (TOEIC 탭)
    sub:     "日本語 / 中文 / English"
 */
 import { STAGE1 } from "./stage1.js";
@@ -17,3 +19,5 @@ export { PINYIN } from "./pinyin.js";
 export const STAGES = [STAGE1, STAGE2, STAGE3];
 /* 여행 탭 (웹앱 전용, 단일 HTML에는 넣지 않음) */
 export { TRAVEL } from "./travel.js";
+/* TOEIC 탭 (웹앱 전용, 영어만) */
+export { TOEIC } from "./toeic.js";

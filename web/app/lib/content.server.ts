@@ -1,6 +1,6 @@
 /* 콘텐츠 원본(data/)은 route loader에서만 읽는다 (.server 모듈은 클라이언트 번들에 포함되지 않음)
    prerender 때 loader가 실행되어 각 페이지 HTML과 .data에 그 단계 데이터만 들어간다 */
-import { DAKUON, PINYIN, SEION, STAGES, TRAVEL, YOON, type Section } from "@data";
+import { DAKUON, PINYIN, SEION, STAGES, TOEIC, TRAVEL, YOON, type Section } from "@data";
 import { SLUGS } from "./stages";
 import { isChart, isConcept, type Charts, type StageMeta, type StagePayload } from "./sections";
 
@@ -11,8 +11,8 @@ const countOf = (s: Section) =>
   s.type === "kana" ? KANA_TOTAL : s.type === "pinyin" ? PINYIN_TOTAL :
   ("rows" in s && s.rows ? s.rows.length : 0) + ("items" in s ? s.items.length : 0);
 
-/* 학습 단계 1~3 + 여행 탭 */
-const ALL = [...STAGES, TRAVEL];
+/* 학습 단계 1~3 + 여행 탭 + TOEIC 탭 */
+const ALL = [...STAGES, TRAVEL, TOEIC];
 
 /** 모든 페이지가 쓰는 단계 요약 (탭, 홈 카드) */
 export const stageMetas = (): StageMeta[] => ALL.map((st, i) => ({

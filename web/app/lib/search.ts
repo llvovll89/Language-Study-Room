@@ -20,6 +20,10 @@ export const sectionKeys = (sec: Section): string[] => {
     case "pattern":
       return sec.items.map(([tags, ko, [ja, jp], zh, en]: [string[], string, JaShort, ZhField, EnField]) =>
         key([...tags, ko, ...langParts(ja, "", jp, zh, en)]));
+    case "toeic":
+      return sec.items.map(([en, ep, ko, exEn, exKo]) => key([en, plainPron(ep || "", "en"), ko, exEn, exKo]));
+    case "problems":
+      return sec.items.map(([stem, choices, , exp, point]) => key([stem, ...choices, exp, point]));
     case "table":
       return sec.rows.map(r => key(r.map(cellText)));
     case "concept":

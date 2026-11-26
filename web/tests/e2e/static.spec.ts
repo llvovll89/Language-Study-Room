@@ -19,6 +19,16 @@ test.describe("prerender HTML과 구조", () => {
     await expect(page.locator(".quiz-start")).toHaveCount(0);
   });
 
+  test("JS 없이도 TOEIC 시험 구성, 표현, Part 5 정답과 해설을 볼 수 있다", async ({ page, javaScriptEnabled }) => {
+    test.skip(javaScriptEnabled !== false, "JS 끔 전용");
+    await page.goto("/toeic");
+    await expect(page.locator("#e-about")).toContainText("200");
+    expect(await page.locator("#e-part1 .toeic-item").count()).toBeGreaterThanOrEqual(15);
+    const first = page.locator("#e-part5 .problem").first();
+    await first.locator("summary").click();
+    await expect(first.locator(".problem-answer")).toContainText("정답:");
+  });
+
   test("JS 없이도 단계 내용과 단계 링크가 HTML에 있다", async ({ page, javaScriptEnabled }) => {
     test.skip(javaScriptEnabled !== false, "JS 끔 전용");
     await page.goto("/basic");
@@ -34,7 +44,7 @@ test.describe("prerender HTML과 구조", () => {
     await expect(page.locator("footer .ver")).toHaveText(VERSION);
   });
 
-  for(const slug of ["basic", "intermediate", "advanced", "travel"]){
+  for(const slug of ["basic", "intermediate", "advanced", "travel", "toeic"]){
     test(`${slug}: id 중복 없음, 링크 대상 있음, 모든 항목에 4개 언어와 발음`, async ({ page, javaScriptEnabled }) => {
       await page.goto(`/${slug}`); await ready(page, javaScriptEnabled);
       const r = await page.evaluate(() => {
@@ -96,7 +106,7 @@ test.describe("prerender HTML과 구조", () => {
 
   test("단계 탭 이름은 기본, 중급, 심화이고 SEO 제목이 있다", async ({ page, javaScriptEnabled }) => {
     await page.goto("/intermediate"); await ready(page, javaScriptEnabled);
-    await expect(page.locator(".tabbar a span")).toHaveText(["기본", "중급", "심화", "여행"]);
+    await expect(page.locator(".tabbar a span")).toHaveText(["기본", "중급", "심화", "여행", "TOEIC"]);
     await expect(page).toHaveTitle(/2단계 중급/);
     await expect(page.locator('meta[name="description"]')).toHaveAttribute("content", /.+/);
   });

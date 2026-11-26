@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import type { Section } from "@data";
-import { BLANK, buildQuiz, quizzable, readWrong, updateWrong, WRONG_KEY, type QLang, type Question } from "~/lib/quiz";
+import { BLANK, buildQuiz, englishOnly, quizzable, readWrong, updateWrong, WRONG_KEY, type QLang, type Question } from "~/lib/quiz";
 import { speak } from "~/lib/speech";
 import { HTML_LANG, LANG_LABEL, TTS_LANG } from "~/lib/stages";
 import { getStore, useSettings } from "~/state/settings";
@@ -11,7 +11,7 @@ import { Pron } from "./cells";
    - 틀린 문제는 오답 노트(localStorage tri.wrong)에 저장, 맞히면 지움 */
 
 const TYPE_LABEL: Record<Question["type"], string> = {
-  meaning: "뜻 고르기", foreign: "외국어 고르기", listen: "듣고 고르기", cloze: "빈칸 채우기",
+  meaning: "뜻 고르기", foreign: "외국어 고르기", listen: "듣고 고르기", cloze: "빈칸 채우기", part5: "Part 5 문제",
 };
 const FONT: Record<QLang, string> = { ja: "font-mincho", zh: "font-hanzi", en: "font-sans" };
 const sayText = (q: Question) => (q.lang === "ja" ? q.source.ja.sub || q.source.ja.text : q.source[q.lang].text);
@@ -46,8 +46,9 @@ function QuizDialog({ questions, onClose }: { questions: Question[]; onClose: ()
   };
   const next = () => { setPicked(null); setI(n => n + 1); };
 
-  const choiceFont = q && (q.type === "foreign" || q.type === "cloze") ? FONT[q.lang] : "";
-  const choiceLang = q && (q.type === "foreign" || q.type === "cloze") ? HTML_LANG[q.lang] : "ko";
+  const inLang = q && (q.type === "foreign" || q.type === "cloze" || q.type === "part5");
+  const choiceFont = inLang ? FONT[q.lang] : "";
+  const choiceLang = inLang ? HTML_LANG[q.lang] : "ko";
 
   return (
     <dialog ref={ref} onClose={onClose} aria-label="문제 풀기"
@@ -77,7 +78,7 @@ function QuizDialog({ questions, onClose }: { questions: Question[]; onClose: ()
             ) : (
               <p lang={q.type === "foreign" ? "ko" : HTML_LANG[q.lang]}
                 className={`quiz-prompt m-0 font-bold leading-snug text-[clamp(24px,6vw,38px)] ${q.type === "foreign" ? "" : FONT[q.lang]}`}>
-                {q.type === "cloze" ? q.prompt.split(BLANK).flatMap((part, k) => k ? [<span key={k} className="inline-block min-w-16 border-b-4 border-current mx-1 align-baseline">&nbsp;</span>, part] : [part]) : q.prompt}
+                {q.type === "cloze" || q.type === "part5" ? q.prompt.split(BLANK).flatMap((part, k) => k ? [<span key={k} className="inline-block min-w-16 border-b-4 border-current mx-1 align-baseline">&nbsp;</span>, part] : [part]) : q.prompt}
               </p>
             )}
             {q.type === "cloze" && <p className="m-0 mt-2 text-ink-2">뜻: {q.source.ko}</p>}
@@ -104,7 +105,9 @@ function QuizDialog({ questions, onClose }: { questions: Question[]; onClose: ()
                 <p lang={HTML_LANG[q.lang]} className={`m-0 text-lg ${FONT[q.lang]}`}>{q.source[q.lang].text}</p>
                 {showPron && q.source[q.lang].sub && <p className="m-0 text-sm text-muted">{q.source[q.lang].sub}</p>}
                 {showPron && <Pron text={q.source[q.lang].pron} lang={q.lang} />}
-                <p className="m-0 mt-1 text-ink-2">{q.source.ko}</p>
+                {q.explanation
+                  ? <p className="quiz-exp m-0 mt-2 text-ink-2 leading-relaxed"><b className="text-ink">{q.source.ko}</b> · {q.explanation}</p>
+                  : <p className="m-0 mt-1 text-ink-2">{q.source.ko}</p>}
                 <div className="flex gap-2 mt-3">
                   {tts && <button type="button" onClick={() => speak(sayText(q), TTS_LANG[q.lang])} className="rounded-full border border-line bg-sheet px-4 min-h-10 text-sm">🔊 듣기</button>}
                   <button type="button" onClick={next} className="quiz-next ml-auto rounded-full bg-ink text-paper px-5 min-h-10 font-medium">{i + 1 < questions.length ? "다음 문제" : "결과 보기"}</button>
@@ -123,7 +126,7 @@ export function QuizLauncher({ sec }: { sec: Section }){
   const { show, tts, ready } = useSettings();
   const [questions, setQuestions] = useState<Question[] | null>(null);
   const [wrongCount, setWrongCount] = useState(0);
-  const langs = (["ja", "zh", "en"] as const).filter(l => show[l]);
+  const langs: QLang[] = englishOnly(sec) ? ["en"] : (["ja", "zh", "en"] as const).filter(l => show[l]);
   const refreshWrong = () => setWrongCount(loadWrong().filter(id => id.startsWith(`${sec.id}:`)).length);
 
   useEffect(() => { if(ready) refreshWrong(); }, [ready, sec.id]);
@@ -143,7 +146,7 @@ export function QuizLauncher({ sec }: { sec: Section }){
           오답 다시 풀기 <span className="tabular-nums">{wrongCount}</span>
         </button>
       )}
-      <span className="text-xs text-muted">공부할 언어로 켠 {langs.map(l => LANG_LABEL[l]).join(", ")}에서 출제됩니다</span>
+      <span className="text-xs text-muted">{englishOnly(sec) ? "영어로 출제됩니다" : `공부할 언어로 켠 ${langs.map(l => LANG_LABEL[l]).join(", ")}에서 출제됩니다`}</span>
       {questions && <QuizDialog questions={questions} onClose={() => { setQuestions(null); refreshWrong(); }} />}
     </div>
   );

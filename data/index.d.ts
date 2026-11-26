@@ -30,13 +30,19 @@ export interface PatternSection extends SectionBase { type: "pattern"; items: Pa
 export interface TableSection extends SectionBase { type: "table"; head: string[]; rows: TableCell[][] }
 export interface ConceptSection extends SectionBase { type: "concept"; head?: string[]; rows?: TableCell[][]; items: ListItem[] }
 export interface CardSection extends SectionBase { type: "card"; items: ListItem[] }
+/** [영어, 한글 발음, 한국어 뜻, 영어 예문, 예문 뜻] */
+export type ToeicItem = [en: string, enPron: string, ko: string, exEn: string, exKo: string];
+/** [문제(빈칸 "_____"), 보기 4개, 정답 index, 해설, 문법 포인트] */
+export type Problem = [stem: string, choices: [string, string, string, string], answer: 0 | 1 | 2 | 3, explanation: string, point: string];
+export interface ToeicSection extends SectionBase { type: "toeic"; items: ToeicItem[] }
+export interface ProblemSection extends SectionBase { type: "problems"; items: Problem[] }
 export interface KanaSection extends SectionBase { type: "kana" }
 export interface PinyinSection extends SectionBase { type: "pinyin" }
-export type Section = ListSection | DialogSection | PatternSection | TableSection | ConceptSection | CardSection | KanaSection | PinyinSection;
+export type Section = ListSection | DialogSection | PatternSection | TableSection | ConceptSection | CardSection | ToeicSection | ProblemSection | KanaSection | PinyinSection;
 
 export interface Stage {
-  /** 1~3: 학습 단계, 4: 여행 */
-  id: 1 | 2 | 3 | 4;
+  /** 1~3: 학습 단계, 4: 여행, 5: TOEIC */
+  id: 1 | 2 | 3 | 4 | 5;
   name: string;
   short: string;
   desc: string;
@@ -55,6 +61,7 @@ export interface Pinyin {
 
 export declare const STAGES: Stage[];
 export declare const TRAVEL: Stage;
+export declare const TOEIC: Stage;
 export declare const SEION: (Kana | null)[];
 export declare const DAKUON: Kana[];
 export declare const YOON: Kana[];

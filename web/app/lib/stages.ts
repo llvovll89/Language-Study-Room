@@ -2,14 +2,15 @@ import { useRouteLoaderData } from "react-router";
 import type { StageMeta } from "./sections";
 
 /* URL 슬러그 ↔ 단계 (데이터 값은 loader가 준다: content.server.ts) */
-export const SLUGS = ["basic", "intermediate", "advanced", "travel"] as const;
+export const SLUGS = ["basic", "intermediate", "advanced", "travel", "toeic"] as const;
 export type Slug = (typeof SLUGS)[number];
 
 /** 탭과 제목에 쓰는 이름: 1~3은 "N단계", 여행은 "여행" */
 export const TRAVEL_ID = 4;
-export const stageLabel = (id: number) => (id === TRAVEL_ID ? "여행" : `${id}단계`);
-/** 탭과 머리글의 큰 표시: 숫자 또는 비행기 */
-export const stageMark = (id: number) => (id === TRAVEL_ID ? "✈" : String(id));
+export const TOEIC_ID = 5;
+export const stageLabel = (id: number) => (id === TRAVEL_ID ? "여행" : id === TOEIC_ID ? "TOEIC" : `${id}단계`);
+/** 탭과 머리글의 큰 표시: 숫자, 비행기, TOEIC은 T */
+export const stageMark = (id: number) => (id === TRAVEL_ID ? "✈" : id === TOEIC_ID ? "T" : String(id));
 
 /** root loader가 주는 단계 요약 (탭, 홈 카드, 이어 보기) */
 export const useStages = (): StageMeta[] =>
