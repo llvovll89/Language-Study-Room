@@ -1,6 +1,6 @@
 /* 데이터 검증: node scripts/validate-data.mjs
    빈 칸, 괄호 짝, 중국어 성조 숫자 개수와 병음 음절 수 일치를 확인한다 */
-import { STAGES, TRAVEL, PINYIN } from "../data/index.js";
+import { STAGES, TRAVEL, TOEIC, PINYIN } from "../data/index.js";
 
 const errors = [];
 const PY_SYL = /[a-zāáǎàēéěèīíǐìōóǒòūúǔùǖǘǚǜü]+/gi;
@@ -35,7 +35,7 @@ const checkZh = (id, zh, py, pron) => {
   checkMarkup(id, pron);
 };
 
-for(const st of [...STAGES, TRAVEL]){
+for(const st of [...STAGES, TRAVEL, TOEIC]){
   for(const sec of st.sections){
     const id = sec.id;
     if(sec.sub.split(" / ").length !== 3 || sec.sub.split(" / ").some(s => !s.trim())) err(id, "sub는 '日 / 中 / EN' 3칸", sec.sub);
@@ -49,6 +49,31 @@ for(const st of [...STAGES, TRAVEL]){
       if(!sec.items || sec.items.length < 3) err(id, "개념 섹션에는 예문(items)이 3개 이상 필요", sec.items?.length);
     }
     if(st === TRAVEL && (!sec.items || sec.items.length < 12)) err(id, "여행 섹션은 항목 12개 이상", sec.items?.length);
+    if(sec.type === "toeic"){
+      if(sec.items.length < 15) err(id, "TOEIC 표현 섹션은 15개 이상", sec.items.length);
+      if(!sec.note || sec.note.length < 2) err(id, "설명(note) 2개 이상", sec.note?.length);
+      sec.items.forEach((it, i) => {
+        const [en, ep, ko, exEn, exKo] = it;
+        if(it.length !== 5) err(`${id}#${i}`, "항목은 5칸", it);
+        if(!ko) err(`${id}#${i}`, "한국어 뜻 비어 있음", it);
+        checkEn(`${id}#${i}`, en, ep);
+        if(!!exEn !== !!exKo) err(`${id}#${i}`, "예문과 예문 뜻은 함께", it);
+      });
+      continue;
+    }
+    if(sec.type === "problems"){
+      if(sec.items.length < 20) err(id, "문제 20개 이상", sec.items.length);
+      sec.items.forEach((it, i) => {
+        const [stem, choices, ans, exp, point] = it;
+        const key = `${id}#${i}`;
+        if(!/_{5}/.test(stem)) err(key, "문제에 빈칸 _____ 필요", stem);
+        if(!Array.isArray(choices) || choices.length !== 4 || new Set(choices).size !== 4) err(key, "보기 4개, 서로 달라야 함", choices);
+        if(![0, 1, 2, 3].includes(ans)) err(key, "정답 index 0~3", ans);
+        if(!exp || !point) err(key, "해설과 문법 포인트 필요", it);
+      });
+      continue;
+    }
+    if(st === TOEIC && sec.type === "table" && sec.rows.length < 8) err(id, "TOEIC 표는 8행 이상", sec.rows.length);
     (sec.items || []).forEach((it, i) => {
       const key = `${id}#${i}`;
       if(sec.type === "list" || sec.type === "concept" || sec.type === "card"){

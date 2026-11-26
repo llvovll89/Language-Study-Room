@@ -7,6 +7,7 @@ import { useSettings } from "~/state/settings";
 import { ColHead, KoCell, LangCells, Pron } from "./cells";
 import { QuizLauncher } from "./quiz";
 import { CardBody } from "./showcards";
+import { ProblemBody, ToeicBody } from "./toeic";
 
 /* 검색 결과: 항목 index별 표시 여부 (undefined면 전부 표시) */
 type Visible = boolean[] | undefined;
@@ -186,6 +187,8 @@ export function Section({ sec, total, visible, query }: { sec: SectionT; total: 
     sec.type === "dialog" ? <DialogBody sec={sec} visible={visible} /> :
     sec.type === "pattern" ? <PatternBody sec={sec} visible={visible} /> :
     sec.type === "card" ? <CardBody sec={sec} visible={visible} /> :
+    sec.type === "toeic" ? <ToeicBody sec={sec} visible={visible} /> :
+    sec.type === "problems" ? <ProblemBody sec={sec} visible={visible} /> :
     sec.type === "concept" ? <>
       {sec.head && sec.rows && <DataTable head={sec.head} rows={sec.rows} visible={visible} />}
       <ListBody sec={sec} visible={visible} offset={tableRows} />

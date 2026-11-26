@@ -114,3 +114,42 @@ test("여행 탭 섹션 id는 학습 단계와 겹치지 않고, 같은 한국�
   const kos = TRAVEL.sections.flatMap(s => s.items.map(it => it[0]));
   assert.deepEqual(kos.filter((k, i) => kos.indexOf(k) !== i), []);
 });
+
+/* v2.3: TOEIC 탭 (웹앱 전용, 영어만) */
+import { TOEIC } from "../../data/index.js";
+
+test("TOEIC 탭: id 5, 시험 구성 표가 맨 앞이고 공식 문항 수 합계가 200이다", () => {
+  assert.equal(TOEIC.id, 5);
+  assert.equal(TOEIC.short, "TOEIC");
+  const about = TOEIC.sections[0];
+  assert.equal(about.id, "e-about");
+  const parts = about.rows.filter(r => /^Part [1-7]$/.test(r[0]));
+  assert.equal(parts.length, 7);
+  // YBM 공식: 6 + 25 + 39 + 30 + 30 + 16 + 54 = 200
+  assert.deepEqual(parts.map(r => Number(r[2])), [6, 25, 39, 30, 30, 16, 54]);
+  assert.equal(parts.reduce((n, r) => n + Number(r[2]), 0), 200);
+});
+
+test("TOEIC 탭: 섹션 id는 e-로 시작하고, 표현·문제 섹션이 충분하다", () => {
+  for(const sec of TOEIC.sections){
+    assert.match(sec.id, /^e-[a-z0-9-]+$/);
+    assert.ok(["table", "toeic", "problems"].includes(sec.type), `${sec.id}: ${sec.type}`);
+  }
+  assert.ok(TOEIC.sections.filter(s => s.type === "toeic").length >= 10);
+  const p5 = TOEIC.sections.find(s => s.type === "problems");
+  assert.ok(p5 && p5.items.length >= 20);
+});
+
+test("TOEIC Part 5 문제: 정답 위치가 한쪽에 몰리지 않고, 같은 문제가 없다", () => {
+  const p5 = TOEIC.sections.find(s => s.type === "problems");
+  const pos = [0, 0, 0, 0];
+  for(const [, , ans] of p5.items) pos[ans]++;
+  for(const n of pos) assert.ok(n >= 3, `정답 위치 분포 ${pos}`);
+  const stems = p5.items.map(it => it[0]);
+  assert.equal(new Set(stems).size, stems.length);
+});
+
+test("TOEIC 표현은 전체에서 중복되지 않는다", () => {
+  const ens = TOEIC.sections.filter(s => s.type === "toeic").flatMap(s => s.items.map(it => it[0].toLowerCase()));
+  assert.deepEqual(ens.filter((e, i) => ens.indexOf(e) !== i), []);
+});

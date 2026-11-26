@@ -4,7 +4,7 @@
 import type { Section, TableCell } from "@data";
 
 export type QLang = "ja" | "zh" | "en";
-export type QType = "meaning" | "foreign" | "listen" | "cloze";
+export type QType = "meaning" | "foreign" | "listen" | "cloze" | "part5";
 
 export interface Face { text: string; sub: string; pron: string }
 export interface QItem { ko: string; ja: Face; zh: Face; en: Face }
@@ -19,8 +19,10 @@ export interface Question {
   prompt: string;
   choices: string[];
   answer: number;
-  /** 정답 확인 때 보여 줄 원래 항목 */
+  /** 정답 확인 때 보여 줄 원래 항목 (part5는 정답을 채운 문장) */
   source: QItem;
+  /** part5 해설 */
+  explanation?: string;
 }
 
 export type Rng = () => number;
@@ -39,13 +41,24 @@ export const toQItems = (sec: Section): QItem[] => {
     case "pattern":
       return sec.items.map(([, ko, [ja, jp], [zh, py, zp], [en, ep]]) =>
         ({ ko, ja: face(ja, "", jp), zh: face(zh, py, zp), en: face(en, "", ep) }));
+    case "toeic":
+      // TOEIC 탭은 영어만: 일본어·중국어 칸은 비워 둔다 (출제 언어는 en으로 고정)
+      return sec.items.map(([en, ep, ko]) => ({ ko, ja: face("", "", ""), zh: face("", "", ""), en: face(en, "", ep) }));
+    case "problems":
+      // 정답을 채운 문장을 원문으로, 문법 포인트를 뜻 자리에
+      return sec.items.map(([stem, choices, ans, , point]) =>
+        ({ ko: point, ja: face("", "", ""), zh: face("", "", ""), en: face(stem.replace(/_{5,}/, choices[ans]), "", "") }));
     default:
       return [];
   }
 };
 
 /** 문제를 낼 수 있는 섹션: 보기 4개를 만들 만큼 서로 다른 항목이 있어야 한다 */
-export const quizzable = (sec: Section) => new Set(toQItems(sec).map(i => i.ko)).size >= 4;
+export const quizzable = (sec: Section) =>
+  sec.type === "problems" ? sec.items.length >= 1 : new Set(toQItems(sec).map(i => i.ko)).size >= 4;
+
+/** 영어만 다루는 섹션 (TOEIC 탭): 공부할 언어 설정과 상관없이 영어로 출제 */
+export const englishOnly = (sec: Section) => sec.type === "toeic" || sec.type === "problems";
 
 const shuffle = <T,>(arr: T[], rng: Rng) => {
   const a = [...arr];
@@ -114,6 +127,13 @@ const textOf = (it: QItem, l: QLang) => it[l].text;
 export const makeQuestion = (sec: Section, items: QItem[], i: number, type: QType, lang: QLang, rng: Rng): Question | null => {
   const it = items[i];
   const id = `${sec.id}:${i}:${type}:${lang}`;
+  if(type === "part5"){
+    if(sec.type !== "problems" || !sec.items[i]) return null;
+    const [stem, choices, ans, exp] = sec.items[i];
+    // 보기 순서는 원래대로 (A~D 해설과 맞추기 위해)
+    return { id, type, lang: "en", item: i, prompt: stem.replace(/_{5,}/, BLANK), choices: [...choices], answer: ans, source: it, explanation: exp };
+  }
+  if(type === "cloze" && sec.type === "problems") return null;
   const others = items.filter((_, j) => j !== i);
   if(type === "meaning" || type === "listen"){
     const c = makeChoices(it.ko, others.map(o => o.ko), rng);
@@ -146,6 +166,10 @@ export const buildQuiz = (sec: Section, opt: BuildOptions): Question[] => {
   }
 
   const count = Math.min(opt.count ?? 10, items.length);
+  if(sec.type === "problems"){
+    return shuffle(items.map((_, j) => j), rng).slice(0, count)
+      .map(i => makeQuestion(sec, items, i, "part5", "en", rng)).filter((q): q is Question => !!q);
+  }
   const types: QType[] = ["meaning", "foreign", ...(opt.tts ? ["listen" as const] : [])];
   const out: Question[] = [];
   for(const i of shuffle(items.map((_, j) => j), rng)){

@@ -11,7 +11,7 @@ test.describe("웹앱 동작", () => {
 
   test("홈에서 기본 단계로 들어가고, 탭으로 단계를 바꾼다", async ({ page }) => {
     await page.goto("/"); await hydrated(page);
-    await expect(page.locator(".stage-card")).toHaveCount(4);
+    await expect(page.locator(".stage-card")).toHaveCount(5);
     await press(page, page.locator(".cta"));
     await expect(page).toHaveURL(/\/basic$/);
     await expect(page.locator("h1")).toContainText("기본");
@@ -286,5 +286,35 @@ test.describe("웹앱 동작", () => {
     }
     await expect(dialog.locator(".quiz-result")).toBeVisible();
     await ctx.close();
+  });
+
+  /* v2.3 TOEIC */
+  test("TOEIC: 시험 구성 표, 표현 듣기, Part 5 문제를 바로 채점하고 해설을 보여 준다", async ({ page }) => {
+    await page.goto("/toeic"); await hydrated(page);
+    await expect(page.locator("h1")).toContainText("TOEIC");
+    await expect(page.locator("#e-about tr").filter({ hasText: "Part 5" })).toContainText("30");
+    const item = page.locator("#e-part1 .toeic-item").first();
+    await press(page, item.locator(".say"));
+    expect((await spoken(page)).at(-1)?.lang).toBe("en-US");
+    const prob = page.locator("#e-part5 .problem").first();
+    await press(page, prob.locator("[role=radio]").first());
+    await expect(prob.locator(".problem-exp")).toBeVisible();
+    await expect(prob.locator('[data-state="correct"]')).toHaveCount(1);
+    await expect(prob.locator(".problem-answer")).toHaveCount(0);
+  });
+
+  test("TOEIC: 영어를 꺼 둬도 영어로 출제하고, Part 5 문제 풀기는 해설을 보여 준다", async ({ page }) => {
+    await page.goto("/toeic"); await hydrated(page);
+    await openSettings(page);
+    await press(page, page.locator("#show-en"));
+    await page.keyboard.press("Escape");
+    await press(page, page.locator("#e-hr .quiz-start"));
+    const dialog = page.locator("dialog.quiz-dialog");
+    await expect(dialog.locator(".quiz-type")).toContainText("English");
+    await page.keyboard.press("Escape");
+    await press(page, page.locator("#e-part5 .quiz-start"));
+    await expect(dialog.locator(".quiz-type")).toContainText("Part 5 문제");
+    await press(page, dialog.locator(".quiz-choices button").first());
+    await expect(dialog.locator(".quiz-exp")).toBeVisible();
   });
 });

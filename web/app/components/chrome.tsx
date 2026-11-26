@@ -28,7 +28,7 @@ export const StageTabs = () => { const stages = useStages(); return (
 ); };
 
 export const TabBar = () => { const stages = useStages(); return (
-  <nav aria-label="학습 단계" className="tabbar md:hidden grid grid-cols-4 gap-1 fixed inset-x-0 bottom-0 z-40 px-2 pt-1.5 pb-[calc(6px+env(safe-area-inset-bottom))] bg-paper border-t border-line">
+  <nav aria-label="학습 단계" className="tabbar md:hidden grid grid-cols-5 gap-1 fixed inset-x-0 bottom-0 z-40 px-2 pt-1.5 pb-[calc(6px+env(safe-area-inset-bottom))] bg-paper border-t border-line">
     {stages.map(st => (
       <NavLink key={st.id} to={`/${st.slug}`} aria-label={`${stageLabel(st.id)} ${st.name}`}
         className={({ isActive }) => `flex flex-col items-center justify-center gap-0.5 min-h-[54px] rounded-xl text-xs font-medium ${isActive ? "text-ink bg-sheet ring-1 ring-line" : "text-muted"}`}>
