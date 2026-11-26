@@ -3,3 +3,6 @@ test-results/
 web/build/
 web/.react-router/
 web/test-results/
+# Claude Code 개인 설정 (공유 설정 .claude/settings.json과 skills는 커밋)
+.claude/settings.local.json
+.claude/scheduled_tasks.lock
