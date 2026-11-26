@@ -45,3 +45,40 @@ test("병음은 성조 기호 없이, 붙여서, ü는 u와 v로도 찾을 수 �
   const lv = plainPinyin("lǜ chá");
   for(const f of ["lu cha", "lucha", "lv cha", "lvcha"]) assert.ok(lv.includes(f), f);
 });
+
+/* v2.0: React용 토큰 트리 */
+import { tokenizePron } from "../../lib/pron.mjs";
+import { STAGES } from "../../data/index.js";
+
+/* 토큰 트리를 renderPron과 같은 HTML로 되돌려 두 함수가 같은 의미인지 확인 */
+const toHtml = nodes => nodes.map(n =>
+  n.t === "text" ? esc(n.v) :
+  n.t === "tone" ? `<sup class="tone t${n.d}" title="${n.name}">${n.mark}</sup>` :
+  n.t === "link" ? '<span class="link" aria-hidden="true">‿</span>' :
+  n.t === "pause" ? '<span class="pause" aria-hidden="true"></span>' :
+  `<span class="${n.t}">${toHtml(n.c)}</span>`).join("");
+
+test("tokenizePron: 높게·약하게는 자식을 가진 노드가 된다", () => {
+  assert.deepEqual(tokenizePron("오[하요-] 데(스)", "ja"), [
+    { t: "text", v: "오" }, { t: "hi", c: [{ t: "text", v: "하요-" }] },
+    { t: "text", v: " 데" }, { t: "weak", c: [{ t: "text", v: "스" }] },
+  ]);
+});
+
+test("tokenizePron: 성조는 zh에서만, 연음과 쉼도 노드가 된다", () => {
+  assert.deepEqual(tokenizePron("니2", "zh"), [{ t: "text", v: "니" }, { t: "tone", d: 2, mark: "↗", name: "2성" }]);
+  assert.deepEqual(tokenizePron("니2", "ja"), [{ t: "text", v: "니2" }]);
+  assert.deepEqual(tokenizePron("A_B | C", "en"), [
+    { t: "text", v: "A" }, { t: "link" }, { t: "text", v: "B " }, { t: "pause" }, { t: "text", v: " C" },
+  ]);
+});
+
+test("tokenizePron은 모든 데이터에서 renderPron과 같은 결과를 낸다", () => {
+  let n = 0;
+  const check = (p, lang) => { if(!p) return; n++; assert.equal(toHtml(tokenizePron(p, lang)), renderPron(p, lang), p); };
+  for(const st of STAGES) for(const sec of st.sections) for(const it of sec.items || []){
+    if(sec.type === "dialog" || sec.type === "pattern"){ check(it[2][1], "ja"); check(it[3][2], "zh"); check(it[4][1], "en"); }
+    else { check(it[1][2], "ja"); check(it[2][2], "zh"); check(it[3][1], "en"); }
+  }
+  assert.ok(n > 1500, `검사한 발음 수 ${n}`);
+});
