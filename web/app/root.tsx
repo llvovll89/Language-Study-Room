@@ -1,5 +1,6 @@
 import { useEffect } from "react";
 import { Links, Meta, Outlet, Scripts, ScrollRestoration, isRouteErrorResponse, type LinksFunction } from "react-router";
+import { stageMetas } from "~/lib/content.server";
 import { SettingsProvider } from "~/state/settings";
 import type { Route } from "./+types/root";
 import "./app.css";
@@ -12,6 +13,11 @@ export const links: LinksFunction = () => [
   { rel: "icon", href: "/icon.svg", type: "image/svg+xml" },
   { rel: "apple-touch-icon", href: "/icon-192.png" },
 ];
+
+/* 모든 페이지가 쓰는 단계 요약 (prerender 때 실행) */
+export function loader(){
+  return { stages: stageMetas() };
+}
 
 export function Layout({ children }: { children: React.ReactNode }){
   return (

@@ -1,14 +1,13 @@
-import { STAGES, type Stage } from "@data";
+import { useRouteLoaderData } from "react-router";
+import type { StageMeta } from "./sections";
 
-/* URL 슬러그 ↔ 단계 */
+/* URL 슬러그 ↔ 단계 (데이터 값은 loader가 준다: content.server.ts) */
 export const SLUGS = ["basic", "intermediate", "advanced"] as const;
 export type Slug = (typeof SLUGS)[number];
 
-export const stageBySlug = (slug: string | undefined): Stage | undefined => {
-  const i = SLUGS.indexOf(slug as Slug);
-  return i < 0 ? undefined : STAGES[i];
-};
-export const slugOf = (stage: Stage): Slug => SLUGS[stage.id - 1];
+/** root loader가 주는 단계 요약 (탭, 홈 카드, 이어 보기) */
+export const useStages = (): StageMeta[] =>
+  (useRouteLoaderData("root") as { stages: StageMeta[] } | undefined)?.stages ?? [];
 
 export type LangCode = "ko" | "ja" | "zh" | "en";
 export const FOREIGN = ["ja", "zh", "en"] as const;
