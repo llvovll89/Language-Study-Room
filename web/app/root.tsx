@@ -50,11 +50,21 @@ export default function App(){
 
 export function ErrorBoundary({ error }: Route.ErrorBoundaryProps){
   const notFound = isRouteErrorResponse(error) && error.status === 404;
+  // v2.4.2: 주제 데이터는 연 것만 기기에 저장한다. 오프라인에서 아직 안 연 주제는 데이터를 받지 못해 여기로 온다
+  const offline = !notFound && typeof navigator !== "undefined" && navigator.onLine === false;
+  const stage = typeof location !== "undefined" ? location.pathname.match(/^\/[a-z]+(?=\/)/)?.[0] : undefined;
   return (
-    <main className="max-w-xl mx-auto px-6 py-24 text-center">
-      <h1 className="text-2xl font-bold mb-3">{notFound ? "페이지를 찾을 수 없습니다" : "문제가 생겼습니다"}</h1>
-      <p className="text-muted mb-8">{notFound ? "주소를 다시 확인하거나 처음 화면으로 돌아가 주세요." : "잠시 뒤에 다시 시도해 주세요."}</p>
-      <a href="/" className="inline-block rounded-full bg-ink text-paper px-5 py-2.5 font-medium">처음으로</a>
+    <main className={`${offline ? "offline-msg " : ""}max-w-xl mx-auto px-6 py-24 text-center`}>
+      <h1 className="text-2xl font-bold mb-3">{notFound ? "페이지를 찾을 수 없습니다" : offline ? "오프라인이라 열 수 없어요" : "문제가 생겼습니다"}</h1>
+      <p className="text-muted mb-8">{
+        notFound ? "주소를 다시 확인하거나 처음 화면으로 돌아가 주세요." :
+        offline ? "아직 열어 보지 않은 주제예요. 인터넷에 연결하면 열 수 있고, 한 번 연 주제는 다음부터 오프라인에서도 열립니다." :
+        "잠시 뒤에 다시 시도해 주세요."
+      }</p>
+      <div className="flex flex-wrap gap-2.5 justify-center">
+        {offline && stage && <a href={stage} className="inline-block rounded-full border border-line bg-sheet px-5 py-2.5 font-medium">주제 목록으로</a>}
+        <a href="/" className="inline-block rounded-full bg-ink text-paper px-5 py-2.5 font-medium">처음으로</a>
+      </div>
     </main>
   );
 }

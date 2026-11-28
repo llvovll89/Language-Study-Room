@@ -46,6 +46,8 @@
     - `@theme`: 디자인 토큰
     - `@layer components`: 반복되는 카드 요소의 짧은 class. prerender HTML 크기를 줄이려고 씁니다.
   - `scripts/sw.mjs`: 빌드 후 서비스 워커(PWA)를 생성하고 `404.html`을 만듭니다. `skipWaiting` + `clientsClaim`이라 새 버전은 바로 화면을 넘겨받고, 화면 적용은 `update.tsx`가 합니다.
+    - 미리 받기는 앱 뼈대(JS·CSS·아이콘), 홈, `404.html`, 홈·단계 목록 `.data`만 (v2.4.2~, 약 900KB). 주제 페이지는 넣지 않습니다. 아이폰 홈 화면 앱은 받는 도중 닫히면 업데이트가 끊기므로 이 양을 키우지 않습니다.
+    - 페이지 이동은 네트워크 우선, 오프라인이면 `404.html`(앱 뼈대). 주제 `.data`는 연 것만 빌드별 `topics-*` 저장소에 저장합니다.
   - `scripts/serve.mjs`: Vercel과 같은 규칙의 테스트용 정적 서버 (port 4180)
   - `tests/e2e/`: Playwright (iphone13, iphone13-nojs, desktop-chrome). 업데이트 테스트는 `deploy-server.ts`(테스트마다 따로 띄우는 서버, `sw.js`를 바꿔 배포를 흉내)
   - `vercel.json`: 정적 배포 설정

@@ -16,25 +16,56 @@ test.describe("PWA", () => {
     for(const icon of m.icons) expect((await request.get(icon.src)).ok(), icon.src).toBe(true);
   });
 
-  test("서비스 워커가 등록되고, 오프라인에서도 모든 단계와 주제가 열린다", async ({ page, context }) => {
+  /* v2.4.2: 미리 받기는 앱 뼈대만. 주제 데이터는 연 것만 저장 */
+  test("서비스 워커는 앱 뼈대와 단계 목록 데이터만 미리 받고, 주제 페이지는 미리 받지 않는다", async ({ request }) => {
+    const sw = await (await request.get("/sw.js")).text();
+    for(const url of ['"index.html"', '"404.html"', '"_.data"', '"basic.data"', '"toeic.data"', '"manifest.webmanifest"']) expect(sw, url).toContain(url);
+    expect(sw).not.toContain("basic/greet");
+    expect(sw).not.toContain("basic/index.html");
+    expect((sw.match(/url:"/g) || []).length).toBeLessThan(40);
+  });
+
+  test("오프라인: 단계 목록은 모두 열리고, 연 주제는 열리고, 안 연 주제는 안내가 나온다", async ({ page, context }) => {
     await page.goto("/"); await hydrated(page);
     await page.evaluate(() => navigator.serviceWorker.ready);
     // 첫 방문 페이지가 서비스 워커의 제어를 받을 때까지
     await page.reload(); await hydrated(page);
     await expect.poll(() => page.evaluate(() => !!navigator.serviceWorker.controller)).toBe(true);
 
+    // 온라인에서 주제 두 개를 연다: 앱 안 이동 하나, 전체 페이지 이동(주소 입력) 하나
+    await page.goto("/basic"); await hydrated(page);
+    await page.locator('[data-topic="s1-greet"]').click();
+    await expect(page.locator("#s1-greet [data-item]").first()).toBeVisible();
+    await page.goto("/travel/cards"); await hydrated(page);
+    const saved = () => page.evaluate(async () => {
+      const name = (await caches.keys()).find(k => k.startsWith("topics-"));
+      return name ? (await (await caches.open(name)).keys()).map(r => new URL(r.url).pathname).sort() : [];
+    });
+    await expect.poll(saved).toEqual(["/basic/greet.data", "/travel/cards.data"]);
+
     await context.setOffline(true);
-    for(const [slug, topic] of [["basic", "greet"], ["intermediate", "cafe"], ["advanced", "dev"], ["travel", "cards"], ["toeic", "part5"]]){
+    for(const slug of ["basic", "intermediate", "advanced", "travel", "toeic"]){
       await page.goto(`/${slug}`);
-      await expect(page.locator(".stage-head h1")).toBeVisible();
+      await expect(page.locator(".stage-head h1"), slug).toBeVisible();
       await expect(page.locator(".topic-row").first()).toBeVisible();
-      await page.goto(`/${slug}/${topic}`);
-      await expect(page.locator("[data-item]").first()).toBeVisible();
     }
-    // 앱 안에서 이동(.data)도 오프라인에서 된다
-    await hydrated(page);
-    await page.locator(".pager a").first().click();
-    await expect(page.locator("main h1")).toBeVisible();
+    await page.goto("/basic/greet");
+    await expect(page.locator("#s1-greet [data-item]").first()).toBeVisible();
+    await page.goto("/travel/cards");
+    await expect(page.locator("#t-cards .show-card").first()).toBeVisible();
+
+    // 안 연 주제: 주소로 열기, 앱 안에서 누르기 모두 안내
+    await page.goto("/advanced/dev");
+    await expect(page.locator(".offline-msg h1")).toHaveText("오프라인이라 열 수 없어요");
+    await expect(page.locator(".offline-msg a", { hasText: "주제 목록으로" })).toHaveAttribute("href", "/advanced");
+    await page.goto("/basic"); await hydrated(page);
+    await page.locator('[data-topic="s1-num"]').click();
+    await expect(page.locator(".offline-msg h1")).toBeVisible();
+
+    // 연 주제는 앱 안 이동으로도 열린다
+    await page.goto("/basic"); await hydrated(page);
+    await page.locator('[data-topic="s1-greet"]').click();
+    await expect(page.locator("#s1-greet [data-item]").first()).toBeVisible();
     await context.setOffline(false);
   });
 
