@@ -40,12 +40,22 @@ export interface KanaSection extends SectionBase { type: "kana" }
 export interface PinyinSection extends SectionBase { type: "pinyin" }
 export type Section = ListSection | DialogSection | PatternSection | TableSection | ConceptSection | CardSection | ToeicSection | ProblemSection | KanaSection | PinyinSection;
 
+/** 단계 페이지의 주제 묶음: from 섹션부터 다음 묶음 전까지 (웹앱 전용) */
+export interface Part {
+  title: string;
+  desc?: string;
+  /** 묶음의 첫 섹션 id */
+  from: string;
+}
+
 export interface Stage {
   /** 1~3: 학습 단계, 4: 여행, 5: TOEIC */
   id: 1 | 2 | 3 | 4 | 5;
   name: string;
   short: string;
   desc: string;
+  /** 주제 묶음 (첫 묶음은 첫 섹션부터, 순서대로) */
+  parts: Part[];
   sections: Section[];
 }
 

@@ -28,12 +28,14 @@
 - 단일 HTML: `build.mjs`, `styles.css`, `runtime.js`
 - `tests/`: 단일 HTML용 E2E(iphone13-nojs, iphone13-js, desktop-chromium)와 공용 단위 테스트(`tests/unit/`)
 - `web/`
-  - `react-router.config.ts`: `ssr:false`이고 6개 경로를 prerender합니다 (`/`, `/basic`, `/intermediate`, `/advanced`, `/travel`, `/toeic`).
-  - `app/routes/`: `home.tsx`, `stage.tsx`(`/:stage`)
+  - `react-router.config.ts`: `ssr:false`이고 모든 경로를 prerender합니다. 목록은 `app/lib/topics.ts`의 `allPaths`가 데이터에서 만듭니다 (`/`, 단계 5개, 주제 페이지).
+  - `app/routes/`: `home.tsx`, `stage.tsx`(`/:stage` 주제 목록 + 단계 전체 검색), `topic.tsx`(`/:stage/:topic` 주제 하나, v2.4~)
+  - 주제 주소: 섹션 id에서 앞의 `s1-`, `t-`, `e-`를 뗀 것 (`s1-greet` → `/basic/greet`). 묶음은 데이터의 단계별 `parts`
   - `app/components/`
     - `cells.tsx`: 언어별 칸, 발음, 듣기 버튼
     - `sections.tsx`: 섹션 type별 본문, 표, 글자표
-    - `chrome.tsx`: 상단 바, 탭, 목차, 설정 패널
+    - `chrome.tsx`: 상단 바, 탭, 검색창, 설정 패널
+    - `topics.tsx`: 단계 페이지의 주제 목록, 주제 페이지 옆 목록, 이전/다음, 진도(`tri.done`, `tri.last`)
     - `showcards.tsx`: 여행 탭 보여 주기 카드와 전체 화면 `<dialog>`
     - `quiz.tsx`: 섹션 아래 문제 풀기와 오답 노트
     - `toeic.tsx`: TOEIC 표현 카드와 Part 5 문제 카드
@@ -68,7 +70,8 @@
 - 반복되는 학습 카드 요소(칸, 엔트리, 표, 글자표)는 `app.css`의 짧은 component class를 씁니다. 페이지 레이아웃은 Tailwind utility로 씁니다.
 - 콘텐츠(`@data`) 값은 `app/lib/content.server.ts`에서만 import합니다. 컴포넌트에서는 loader 데이터를 쓰고, 클라이언트 번들에 데이터가 들어가지 않게 합니다 (type import는 괜찮음).
 - 발음 표기는 `tokenizePron` → `<Pron>` 컴포넌트로 그립니다. `dangerouslySetInnerHTML`은 쓰지 않습니다.
-- 새 경로를 추가하면 `react-router.config.ts`의 `prerender` 목록에도 넣습니다.
+- 주제(섹션)를 추가하면 주제 페이지와 prerender 목록은 자동으로 생깁니다. 새 섹션은 단계의 `parts` 묶음 안에 들어가게 둡니다.
+- 새 종류의 경로를 추가하면 `app/lib/topics.ts`의 `allPaths`(prerender 목록)에도 넣습니다.
 - prerender HTML만으로 콘텐츠와 단계 이동 링크가 보여야 합니다. 설정 기능은 하이드레이션 이후 동작해도 됩니다.
 
 ## 배포 (Vercel)

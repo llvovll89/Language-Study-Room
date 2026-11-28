@@ -1,4 +1,5 @@
 import { createContext, useContext, useState } from "react";
+import { Link } from "react-router";
 import type { ConceptSection, DialogSection, Kana, ListSection, PatternSection, Section as SectionT, TableCell, TableSection } from "@data";
 import { speak } from "~/lib/speech";
 import { isChart, isConcept, type Charts } from "~/lib/sections";
@@ -176,7 +177,10 @@ const BULB = (
   </svg>
 );
 
-export function Section({ sec, total, visible, query }: { sec: SectionT; total: number; visible: Visible; query: string }){
+/** level: 제목 단계 (주제 페이지 1, 단계 검색 결과 2)
+    href: 제목을 주제 페이지 링크로 (단계 검색 결과) */
+export function Section({ sec, total, visible, query, level = 3, href }: { sec: SectionT; total: number; visible: Visible; query: string; level?: 1 | 2 | 3; href?: string }){
+  const H = `h${level}` as const;
   const [jp, zh, en] = sec.sub.split(" / ");
   const n = visible ? visible.filter(Boolean).length : total;
   const tableRows = (sec as TableSection).rows?.length || 0;
@@ -196,10 +200,13 @@ export function Section({ sec, total, visible, query }: { sec: SectionT; total: 
     <DataTable head={sec.head} rows={sec.rows} visible={visible} />;
   return (
     <section id={sec.id} data-type={sec.type} data-concept={isConcept(sec) || undefined} aria-labelledby={`${sec.id}-h`}
-      className={`sec bg-sheet border ${isConcept(sec) ? "border-line-2" : "border-line"} rounded-[14px] md:rounded-2xl px-4 pt-5 pb-1 md:px-8 md:pt-7 md:pb-3 mb-4 md:mb-6 scroll-mt-[136px] md:scroll-mt-20`}>
+      className={`sec bg-sheet border ${isConcept(sec) ? "border-line-2" : "border-line"} rounded-[14px] md:rounded-2xl px-4 pt-5 pb-1 md:px-8 md:pt-7 md:pb-3 mb-4 md:mb-6 scroll-mt-20`}>
       <header className="flex justify-between items-start gap-4 mb-4 md:mb-5">
         <div>
-          <h3 id={`${sec.id}-h`} className="text-[19px] md:text-[22px] leading-snug font-bold tracking-tight m-0">{isConcept(sec) && <KindBadge />}{sec.title}</h3>
+          <H id={`${sec.id}-h`} className={`${level === 1 ? "text-[23px] md:text-[28px]" : "text-[19px] md:text-[22px]"} leading-snug font-bold tracking-tight m-0`}>
+            {isConcept(sec) && <KindBadge />}
+            {href ? <Link to={href} className="underline decoration-line-2 underline-offset-4 hover:decoration-ink">{sec.title}</Link> : sec.title}
+          </H>
           <p className="mt-1 text-sm text-muted">
             <span lang="ja" className="font-mincho text-ink-2 mr-2">{jp}</span>
             {zh && <span lang="zh-CN" className="font-hanzi text-ink-2 mr-2">{zh}</span>}{en}

@@ -8,7 +8,7 @@
 
 ### 🌐 [language-study-room.vercel.app](https://language-study-room.vercel.app/)
 
-![version](https://img.shields.io/badge/version-v2.3.1-1B2433)
+![version](https://img.shields.io/badge/version-v2.4-1B2433)
 ![languages](https://img.shields.io/badge/languages-KO%20%7C%20JA%20%7C%20ZH%20%7C%20EN-1E7A66)
 ![stack](https://img.shields.io/badge/React%2019%20%C2%B7%20React%20Router%208%20%C2%B7%20Tailwind%204-TypeScript-B0651C)
 ![pwa](https://img.shields.io/badge/PWA-offline%20ready-1E7A66)
@@ -66,7 +66,8 @@
 | 🪧 보여 주기 카드 | 여행 탭: 고른 언어 문장을 전체 화면 큰 글씨로 보여 주기 | ✅ | ➖ |
 | 🔊 발음 듣기 | Web Speech API (`ja-JP`, `zh-CN`, `en-US`) | ✅ | ❌ |
 | 🔍 검색 | 4개 언어, 병음(성조 기호 없이 `xie xie`), 한글 발음(`오하요`) | ✅ | ❌ |
-| 단계 주소와 이어 보기 | `/basic`, `/intermediate`, `/advanced`, `/travel`, `/toeic`, 홈에서 마지막 단계 이어 보기 | ✅ | ➖ (`#stage-N`) |
+| 📑 주제별 페이지 | 단계 페이지(`/basic`)는 묶음별 주제 목록, 주제마다 한 페이지(`/basic/greet`)와 이전/다음 | ✅ | ➖ (한 페이지) |
+| 진도와 이어 보기 | 끝까지 본 주제 완료 표시, 오답 수, 홈과 단계 페이지에서 마지막 주제 이어 보기 | ✅ | ➖ (`#stage-N`) |
 | 📲 PWA | 홈 화면 추가, 오프라인 캐시 | ✅ | ➖ (파일 자체가 오프라인) |
 | 라이트·다크 모드 | 시스템 설정을 따름 | ✅ | ✅ |
 
@@ -94,7 +95,7 @@ npm run test:all       # 단일 HTML 테스트 + 웹앱 빌드·테스트
 | 명령 | 하는 일 |
 |---|---|
 | `npm run web:dev` | 웹앱 개발 서버 (React Router dev) |
-| `npm run web:build` | 웹앱 빌드: 4개 경로 prerender + 서비스 워커 → `web/build/client` |
+| `npm run web:build` | 웹앱 빌드: 홈·단계 5개·주제 72개 prerender + 서비스 워커 → `web/build/client` |
 | `npm run web:test` | 웹앱 빌드 후 Playwright E2E |
 | `npm run build` | 단일 HTML 빌드: `data/` → `language-study.html` |
 | `npm test` | 단일 HTML: 데이터 검증 → 단위 테스트 → 빌드 → E2E |
@@ -133,14 +134,14 @@ data에는 가벼운 기호로 적고, 빌드할 때 화면용 모양으로 바�
 language-study/
 ├── web/                     # 🆕 웹앱 (Vercel Root Directory)
 │   ├── app/
-│   │   ├── routes/          # home.tsx, stage.tsx (/:stage)
-│   │   ├── components/      # cells, sections, chrome (상단 바, 탭, 목차, 설정)
+│   │   ├── routes/          # home.tsx, stage.tsx (/:stage 주제 목록), topic.tsx (/:stage/:topic)
+│   │   ├── components/      # cells, sections, chrome (상단 바, 탭, 설정), topics (주제 목록, 이전/다음)
 │   │   ├── state/           # 보기 설정 Context (localStorage)
-│   │   ├── lib/             # 검색, 발음 듣기, 단계 슬러그
+│   │   ├── lib/             # 검색, 발음 듣기, 단계 슬러그, 주제 주소와 진도
 │   │   └── app.css          # Tailwind v4 @theme 토큰 + 학습 카드 component class
 │   ├── scripts/             # sw.mjs (서비스 워커), serve.mjs (테스트 서버)
 │   ├── tests/e2e/           # Playwright (iPhone, iPhone JS 끔, Chrome)
-│   ├── react-router.config.ts  # ssr:false + prerender
+│   ├── react-router.config.ts  # ssr:false + prerender (주소 목록은 data에서 생성)
 │   └── vercel.json
 ├── language-study.html      # 단일 HTML 빌드 결과 (오프라인용)
 ├── build.mjs                # data → 정적 HTML (CSS와 JS를 inline으로 포함)
@@ -200,8 +201,8 @@ language-study/
 | 데이터 검증 | `scripts/validate-data.mjs` | 모든 항목의 필수 칸, `[ ]`·`( )` 짝, 병음 음절 수와 성조 숫자 개수 일치 |
 | 단위 테스트 (28개) | `node:test` | 발음 표기 → HTML 변환, XSS escape, 검색 키, 섹션 id 유일성, 간체 확인, 가상 이름 사용 |
 | 단일 HTML E2E (3개 환경, 86회) | Playwright | 단계 전환과 기억, 검색, 가리기, 언어 선택, 발음 듣기, 병음표, 가로 스크롤 없음, 링크와 id 무결성, 접근성(aria-label, lang) |
-| 문제 생성 단위 테스트 (6개) | `node:test` (TS) | 모든 섹션 출제 가능, 보기 유효성, 빈칸 복원, 언어·TTS 조건, 오답 노트 |
-| 웹앱 E2E (3개 환경, 76회) | Playwright | 위 시나리오에 더해 URL 직접 진입과 404, 이어 보기, prerender HTML(JS 끔), SEO 제목, PWA manifest와 서비스 워커, **오프라인에서 모든 단계 열기** |
+| 웹앱 단위 테스트 (12개) | `node:test` (TS) | 문제 생성(모든 섹션 출제 가능, 보기 유효성, 빈칸 복원, 언어·TTS 조건, 오답 노트), 주제 주소 유일성, prerender 목록, 주제 묶음, 진도 저장값 |
+| 웹앱 E2E (3개 환경, 85회) | Playwright | 위 시나리오에 더해 URL 직접 진입과 404, 주제 목록과 이전/다음, 완료와 이어 보기, 주제 페이지에서 단계 검색, 예전 `#섹션` 주소 이동, **모든 주제 페이지의 링크·id·발음 무결성**, prerender HTML(JS 끔), SEO 제목, PWA manifest와 서비스 워커, **오프라인에서 모든 단계와 주제 열기** |
 
 | 대상 | 프로젝트 | 조건 |
 |---|---|---|
@@ -213,6 +214,7 @@ language-study/
 
 | 버전 | 날짜 | 요약 |
 |---|---|---|
+| **v2.4** | 2026-11-28 | 📑 주제별 페이지: 단계 페이지는 묶음별 주제 목록, 주제마다 한 페이지와 이전/다음, 완료 표시와 이어 보기 (iPhone 기준 한 페이지 약 200화면 → 주제당 2~17화면) |
 | **v2.3.1** | 2026-11-26 | 🛠️ 작업 도구: 커밋 전 자동 검사 hook, `/release` skill (저장소에 포함, 다른 PC에서도 동일) |
 | **v2.3** | 2026-11-26 | 🇺🇸 TOEIC 탭: 공식 자료로 확인한 시험 구성, 파트별 표현 100개, 주제별 어휘 164개, Part 5 문법 12개와 문제 24개(해설) |
 | **v2.2** | 2026-11-26 | 📝 문제와 풀이: 데이터로 문제 자동 생성 (뜻, 외국어, 듣기, 빈칸 채우기), 오답 노트 |
@@ -234,6 +236,7 @@ language-study/
 - [x] **v2.1**: ✈️ 여행 탭, 보여 주기 카드
 - [x] **v2.2**: 📝 문제와 풀이 (자동 생성, 오답 노트)
 - [x] **v2.3**: 🇺🇸 TOEIC 탭
+- [x] **v2.4**: 📑 주제별 페이지, 진도와 이어 보기
 
 ## 🛠️ 관리 방식
 - **1인이 관리하는 개인 프로젝트**입니다. 사이트는 누구나 자유롭게 쓸 수 있지만, 코드 기여(PR)는 받지 않습니다.

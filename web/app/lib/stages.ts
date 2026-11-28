@@ -2,8 +2,7 @@ import { useRouteLoaderData } from "react-router";
 import type { StageMeta } from "./sections";
 
 /* URL 슬러그 ↔ 단계 (데이터 값은 loader가 준다: content.server.ts) */
-export const SLUGS = ["basic", "intermediate", "advanced", "travel", "toeic"] as const;
-export type Slug = (typeof SLUGS)[number];
+export { SLUGS, type Slug } from "./topics";
 
 /** 탭과 제목에 쓰는 이름: 1~3은 "N단계", 여행은 "여행" */
 export const TRAVEL_ID = 4;

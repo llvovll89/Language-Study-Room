@@ -1,10 +1,7 @@
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { Link, NavLink } from "react-router";
-import type { Section as SectionT } from "@data";
-import { isChart, isConcept } from "~/lib/sections";
-import { LANG_LABEL, SECTION_LANG, stageLabel, stageMark, useStages, type LangCode } from "~/lib/stages";
+import { LANG_LABEL, stageLabel, stageMark, useStages, type LangCode } from "~/lib/stages";
 import { useSettings } from "~/state/settings";
-import { KindBadge } from "./sections";
 
 export const VERSION = `v${__APP_VERSION__.replace(/\.0$/, "")}`;
 
@@ -115,48 +112,16 @@ export const TopBar = ({ search }: { search?: ReactNode }) => (
   </header>
 );
 
-export const SearchBox = ({ value, onChange }: { value: string; onChange: (v: string) => void }) => (
-  <label className="search flex flex-1 md:flex-none items-center gap-2 bg-sheet border border-line focus-within:border-ink rounded-full px-3.5 h-10 md:w-[280px] text-muted transition-colors">
+/** 검색창. onSubmit이 있으면 Enter로 제출 (주제 페이지: 단계 전체 검색으로 이동) */
+export const SearchBox = ({ value, onChange, onSubmit, action }: { value: string; onChange: (v: string) => void; onSubmit?: (v: string) => void; action?: string }) => (
+  <form role="search" action={action} method="get" onSubmit={e => { e.preventDefault(); onSubmit?.(value.trim()); }}
+    className="search flex flex-1 md:flex-none items-center gap-2 bg-sheet border border-line focus-within:border-ink rounded-full px-3.5 h-10 md:w-[280px] text-muted transition-colors">
     <svg className="size-[18px] flex-none" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7" /><path d="m20 20-3.5-3.5" /></svg>
-    <span className="sr-only">검색</span>
-    <input id="q" type="search" value={value} onChange={e => onChange(e.target.value)} autoComplete="off"
+    <label htmlFor="q" className="sr-only">{onSubmit ? "단계 전체에서 검색 (Enter)" : "검색"}</label>
+    <input id="q" name="q" type="search" value={value} onChange={e => onChange(e.target.value)} autoComplete="off" enterKeyHint="search"
       placeholder="한국어, 日本語, 中文, English, 병음으로 검색" className="border-0 bg-transparent outline-0 text-sm text-ink w-full min-w-0 h-full placeholder:text-muted" />
-  </label>
+  </form>
 );
-
-/* ───────── 목차 ───────── */
-export function Toc({ stageId, sections, counts, totals, active }: { stageId: number; sections: SectionT[]; counts: Record<string, number | null>; totals: Record<string, number>; active: string }){
-  const { show } = useSettings();
-  const ref = useRef<HTMLElement>(null);
-  // 모바일 가로 칩 목록에서 현재 주제가 보이게 유지
-  useEffect(() => {
-    const nav = ref.current;
-    const a = nav?.querySelector<HTMLElement>(`a[data-for="${active}"]`);
-    if(nav && a && nav.scrollWidth > nav.clientWidth) nav.scrollTo({ left: nav.scrollLeft + a.getBoundingClientRect().left - nav.getBoundingClientRect().left - 16, behavior: "smooth" });
-  }, [active]);
-  return (
-    <nav ref={ref} id="toc" aria-label="주제 목록"
-      className="toc no-scrollbar sticky top-[60px] md:top-[88px] z-20 self-start flex md:block gap-1.5 overflow-x-auto md:overflow-auto md:max-h-[calc(100vh-112px)] -mx-4 md:mx-0 mb-4 md:mb-0 px-4 md:px-0 py-2.5 md:py-0 bg-paper md:bg-transparent border-b border-line md:border-0">
-      <p className="hidden md:block text-[13px] text-muted mb-3 ml-3 font-medium">{stageLabel(stageId)} 주제</p>
-      {sections.map(sec => {
-        const lang = SECTION_LANG[sec.type];
-        if(lang && !show[lang]) return null;
-        const n = counts[sec.id];
-        if(n === 0) return null;
-        const on = sec.id === active;
-        return (
-          <a key={sec.id} href={`#${sec.id}`} data-for={sec.id} aria-current={on ? "location" : undefined}
-            className={`flex-none flex items-center gap-2 px-3.5 md:px-3 py-1.5 md:py-2 rounded-full md:rounded-[10px] border md:border-0 text-sm leading-snug whitespace-nowrap md:whitespace-normal ${on ? "on bg-ink text-paper border-ink" : "bg-sheet md:bg-transparent border-line text-ink-2 md:hover:bg-sheet"}`}>
-            {isConcept(sec) && <KindBadge small />}
-            {/* 긴 제목은 제목만 줄바꿈되고 배지와 개수는 한 줄로 유지 */}
-            <span className="toc-t min-w-0">{sec.title}</span>
-            <span className={`hidden md:inline shrink-0 ml-auto text-xs tabular-nums ${on ? "opacity-70" : "text-muted"}`}>{isChart(sec) ? `${totals[sec.id]}자` : n ?? totals[sec.id]}</span>
-          </a>
-        );
-      })}
-    </nav>
-  );
-}
 
 export const Footer = () => (
   <footer className="max-w-[1240px] mx-auto px-4 md:px-8 pb-[calc(96px+env(safe-area-inset-bottom))] md:pb-12 text-muted text-[13px]">
