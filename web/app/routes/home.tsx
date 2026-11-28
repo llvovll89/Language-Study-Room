@@ -3,6 +3,7 @@ import { Link } from "react-router";
 import { Footer, TabBar, TopBar } from "~/components/chrome";
 import { Pron } from "~/components/cells";
 import { TOEIC_ID, TRAVEL_ID, stageMark, useStages } from "~/lib/stages";
+import { LAST_KEY, lastInStage } from "~/lib/topics";
 import { getStore } from "~/state/settings";
 import type { Route } from "./+types/home";
 
@@ -22,8 +23,11 @@ export default function Home(){
   // 마지막으로 본 단계 (stage 화면에서 저장)
   const stages = useStages();
   const [last, setLast] = useState<string | null>(null);
-  useEffect(() => { setLast(getStore.get("tri.slug")); }, []);
+  const [lastTopic, setLastTopic] = useState<string | null>(null);
+  useEffect(() => { setLast(getStore.get("tri.slug")); setLastTopic(getStore.get(LAST_KEY)); }, []);
   const lastStage = stages.find(st => st.slug === last);
+  // 마지막으로 본 단계 안의 주제가 있으면 그 주제로 바로 이어 본다 (v2.4)
+  const resume = lastStage && (lastInStage(lastTopic, lastStage.slug) ?? `/${lastStage.slug}`);
 
   return (
     <>
@@ -33,10 +37,10 @@ export default function Home(){
           <div>
             <h1 className="text-[32px] md:text-[clamp(34px,4.8vw,56px)] leading-[1.12] tracking-[-.028em] font-bold mb-5">한 문장을<br />네 언어로 익힙니다</h1>
             <p className="text-base md:text-lg leading-[1.7] text-ink-2 max-w-[31em] mb-6 md:mb-8">
-              한국어로 뜻을 잡고, 같은 말을 일본어, 중국어, 영어로 바로 옆에서 비교합니다. 기본, 중급, 심화 세 단계마다 문법 개념을 먼저 익히고 단어와 회화로 넘어가며, 여행 탭에서는 현지에서 바로 쓰는 표현과 '보여 주기 카드'를, TOEIC 탭에서는 시험 구성과 빈출 표현, Part 5 문제를 봅니다. 외국어를 처음 배우는 분도 읽을 수 있게 모든 문장에 한글 발음과 높낮이를 붙였습니다.
+              한국어로 뜻을 잡고, 같은 말을 일본어, 중국어, 영어로 바로 옆에서 비교합니다. 기본, 중급, 심화 세 단계마다 문법 개념을 먼저 익히고 단어와 회화로 넘어가며, 주제를 하나씩 끝내면 진도가 기록됩니다. 여행 탭에서는 현지에서 바로 쓰는 표현과 '보여 주기 카드'를, TOEIC 탭에서는 시험 구성과 빈출 표현, Part 5 문제를 봅니다. 외국어를 처음 배우는 분도 읽을 수 있게 모든 문장에 한글 발음과 높낮이를 붙였습니다.
             </p>
             <div className="flex flex-wrap gap-2.5">
-              <Link to={`/${lastStage?.slug ?? "basic"}`} className="cta rounded-full bg-ink text-paper px-5 py-3 font-medium">
+              <Link to={resume ?? "/basic"} className="cta rounded-full bg-ink text-paper px-5 py-3 font-medium">
                 {lastStage ? `이어서 보기 · ${lastStage.short}` : "기본부터 시작하기"}
               </Link>
             </div>

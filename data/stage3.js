@@ -1,6 +1,11 @@
 /* 3단계 데이터 (형식은 data/index.js 주석 참고) */
 export const STAGE3 = {
   id:3, name:"심화: 공손한 표현과 상황별 표현", short:"심화", desc:"먼저 공손함의 단계와 일본어 경어, 조건과 가정, 수동과 사역, 이유와 반대를 잇는 법, 부드럽게 돌려 말하는 법 같은 심화 문법을 익힙니다. 그다음 비즈니스, 개발 협업, 공항, 병원, 은행처럼 특정 상황에서 바로 쓰는 표현을 연습합니다.",
+  /* 단계 페이지의 주제 묶음: from(섹션 id)부터 다음 묶음 전까지 (웹앱 전용) */
+  parts:[
+    {title:"공손함과 문법", desc:"경어, 조건·가정, 수동·사역, 이유, 돌려 말하기를 비교합니다.", from:"s3-polite"},
+    {title:"상황별 표현", desc:"일, 여행, 병원, 행정처럼 격식이 필요한 장면의 표현입니다.", from:"s3-meeting"}
+  ],
   sections:[
   {id:"s3-polite", title:"공손함의 단계", sub:"丁寧さ / 礼貌程度 / Levels of politeness", type:"table", concept:true,
    note:[

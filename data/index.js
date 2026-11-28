@@ -9,6 +9,8 @@
    toeic:   [영어, 영어 한글 발음, 한국어 뜻, 영어 예문, 예문 뜻] (TOEIC 탭)
    problems:[문제(빈칸 "_____"), [보기 4개], 정답 index, 해설, 문법 포인트] (TOEIC 탭)
    sub:     "日本語 / 中文 / English"
+   parts:   단계의 주제 묶음 [{title, desc, from(묶음 첫 섹션 id)}] (웹앱 단계 페이지, 단일 HTML은 쓰지 않음)
+            섹션 id에서 앞의 "s1-", "t-", "e-"를 뗀 것이 웹앱 주제 주소가 된다 (s1-greet → /basic/greet)
 */
 import { STAGE1 } from "./stage1.js";
 import { STAGE2 } from "./stage2.js";

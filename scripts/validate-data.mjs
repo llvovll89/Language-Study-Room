@@ -95,6 +95,25 @@ for(const st of [...STAGES, TRAVEL, TOEIC]){
 }
 PINYIN.tones.forEach(([c, py, , pron], i) => checkZh(`pinyin.tones#${i}`, c, py, pron));
 
+/* 주제 묶음(parts)과 웹앱 주제 주소: 섹션 id에서 앞의 "s1-", "t-", "e-"를 뗀 것 (web/app/lib/topics.ts) */
+for(const st of [...STAGES, TRAVEL, TOEIC]){
+  const id = `stage${st.id}`;
+  const ids = st.sections.map(s => s.id);
+  if(!Array.isArray(st.parts) || !st.parts.length){ err(id, "parts(주제 묶음)가 필요", st.parts); continue; }
+  if(st.parts[0].from !== ids[0]) err(id, "첫 묶음은 첫 섹션부터 시작", st.parts[0].from);
+  let prev = -1;
+  for(const p of st.parts){
+    const at = ids.indexOf(p.from);
+    if(!p.title) err(id, "묶음 제목이 비어 있음", p);
+    if(at < 0) err(id, "묶음 from이 없는 섹션", p.from);
+    else if(at <= prev) err(id, "묶음은 섹션 순서대로, 비지 않게", p.from);
+    prev = at;
+  }
+  const slugs = ids.map(s => s.replace(/^[a-z]\d?-/, ""));
+  slugs.forEach((s, i) => { if(!/^[a-z0-9][a-z0-9-]*$/.test(s) || s === ids[i]) err(ids[i], "주제 주소를 만들 수 없는 id", s); });
+  if(new Set(slugs).size !== slugs.length) err(id, "주제 주소 중복", slugs);
+}
+
 if(errors.length){
   console.error(errors.join("\n"));
   console.error(`\n${errors.length}개 문제`);

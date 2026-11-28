@@ -15,7 +15,7 @@ test.describe("PWA", () => {
     for(const icon of m.icons) expect((await request.get(icon.src)).ok(), icon.src).toBe(true);
   });
 
-  test("서비스 워커가 등록되고, 오프라인에서도 모든 단계가 열린다", async ({ page, context }) => {
+  test("서비스 워커가 등록되고, 오프라인에서도 모든 단계와 주제가 열린다", async ({ page, context }) => {
     await page.goto("/"); await hydrated(page);
     await page.evaluate(() => navigator.serviceWorker.ready);
     // 첫 방문 페이지가 서비스 워커의 제어를 받을 때까지
@@ -23,11 +23,17 @@ test.describe("PWA", () => {
     await expect.poll(() => page.evaluate(() => !!navigator.serviceWorker.controller)).toBe(true);
 
     await context.setOffline(true);
-    for(const slug of ["basic", "intermediate", "advanced", "travel", "toeic"]){
+    for(const [slug, topic] of [["basic", "greet"], ["intermediate", "cafe"], ["advanced", "dev"], ["travel", "cards"], ["toeic", "part5"]]){
       await page.goto(`/${slug}`);
       await expect(page.locator(".stage-head h1")).toBeVisible();
+      await expect(page.locator(".topic-row").first()).toBeVisible();
+      await page.goto(`/${slug}/${topic}`);
       await expect(page.locator("[data-item]").first()).toBeVisible();
     }
+    // 앱 안에서 이동(.data)도 오프라인에서 된다
+    await hydrated(page);
+    await page.locator(".pager a").first().click();
+    await expect(page.locator("main h1")).toBeVisible();
     await context.setOffline(false);
   });
 });
