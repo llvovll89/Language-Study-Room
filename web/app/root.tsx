@@ -1,5 +1,6 @@
 import { useEffect } from "react";
 import { Links, Meta, Outlet, Scripts, ScrollRestoration, isRouteErrorResponse, type LinksFunction } from "react-router";
+import { UpdateToast, usePWAUpdate } from "~/components/update";
 import { stageMetas } from "~/lib/content.server";
 import { SettingsProvider } from "~/state/settings";
 import type { Route } from "./+types/root";
@@ -39,19 +40,12 @@ export function Layout({ children }: { children: React.ReactNode }){
   );
 }
 
-/* 서비스 워커 등록 (빌드 결과에만 sw.js가 있다) */
-function useServiceWorker(){
-  useEffect(() => {
-    if(import.meta.env.DEV || !("serviceWorker" in navigator)) return;
-    import("workbox-window").then(({ Workbox }) => new Workbox("/sw.js").register()).catch(() => { /* 등록 실패는 기능에 영향 없음 */ });
-  }, []);
-}
-
 export default function App(){
-  useServiceWorker();
+  // 서비스 워커 등록과 자동 업데이트 (v2.4.1)
+  const justUpdated = usePWAUpdate();
   // 하이드레이션 완료 표시 (테스트와 CSS에서 사용)
   useEffect(() => { document.documentElement.dataset.hydrated = ""; }, []);
-  return <SettingsProvider><Outlet /></SettingsProvider>;
+  return <SettingsProvider><Outlet /><UpdateToast show={justUpdated} /></SettingsProvider>;
 }
 
 export function ErrorBoundary({ error }: Route.ErrorBoundaryProps){

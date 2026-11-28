@@ -127,5 +127,6 @@ export const Footer = () => (
   <footer className="max-w-[1240px] mx-auto px-4 md:px-8 pb-[calc(96px+env(safe-area-inset-bottom))] md:pb-12 text-muted text-[13px]">
     홈 화면에 추가하면 인터넷 없이도 볼 수 있습니다. 발음 듣기는 기기의 음성 엔진을 사용합니다.
     <span className="ver ml-1.5 tabular-nums border border-line rounded-full px-2 py-px">{VERSION}</span>
+    <span className="build ml-1.5 tabular-nums" title="빌드 시각(한국 시간)과 커밋">{__APP_BUILD__}</span>
   </footer>
 );
