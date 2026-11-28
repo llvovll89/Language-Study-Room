@@ -2,8 +2,11 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import {
-  APPLY_NOW_MS, buildStamp, canApplyDeferred, isRealUpdate, MIN_CHECK_GAP_MS, onUpdateFound, shouldCheck, takesOverLink,
+  APPLY_NOW_MS, buildStamp, canApplyDeferred, isRealUpdate, isTopicPath, MIN_CHECK_GAP_MS, onUpdateFound, shouldCheck, takesOverLink,
 } from "../../app/lib/pwaUpdate.ts";
+import { readFileSync } from "node:fs";
+import { STAGES, TOEIC, TRAVEL } from "../../../data/index.js";
+import { allPaths } from "../../app/lib/topics.ts";
 
 const base = { sinceStart: 1_000, dialogOpen: false, hidden: false };
 
@@ -56,3 +59,14 @@ test("빌드 표시는 한국 시간 MM-DD HH:mm과 커밋 7자리", () => {
   assert.equal(buildStamp(d, "abcdef1234567"), "11-28 14:05 · abcdef1");
   assert.equal(buildStamp(new Date("2026-12-31T15:30:00Z")), "01-01 00:30", "KST로 날짜가 넘어감");
 });
+
+test("주제 주소 판별: 모든 주제 페이지는 맞고 홈·단계 목록은 아니다 (서비스 워커 저장 규칙과 같다)", () => {
+  const paths = allPaths([...STAGES, TRAVEL, TOEIC]);
+  const topics = paths.filter(isTopicPath);
+  assert.equal(topics.length, paths.length - 6, "홈 1 + 단계 5 말고 전부 주제");
+  for(const p of ["/", "/basic", "/toeic", "/basic/greet/x", "/basic/../x"]) assert.equal(isTopicPath(p), false, p);
+  // scripts/sw.mjs의 주제 데이터 규칙도 같은 모양이어야 한다
+  const sw = readFileSync(new URL("../../scripts/sw.mjs", import.meta.url), "utf8");
+  assert.ok(sw.includes("/^\\/[a-z]+\\/[a-z0-9-]+\\.data$/"), "sw.mjs의 주제 데이터 정규식");
+});
+

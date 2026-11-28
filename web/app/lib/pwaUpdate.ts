@@ -49,3 +49,7 @@ export const buildStamp = (date: Date, sha?: string) => {
   const time = `${p(kst.getUTCMonth() + 1)}-${p(kst.getUTCDate())} ${p(kst.getUTCHours())}:${p(kst.getUTCMinutes())}`;
   return sha ? `${time} · ${sha.slice(0, 7)}` : time;
 };
+
+/** 주제 페이지 주소 (/basic/greet). 서비스 워커는 이 주소의 .data만 연 것을 저장한다 (scripts/sw.mjs와 같은 규칙) */
+export const isTopicPath = (path: string) => /^\/[a-z]+\/[a-z0-9-]+$/.test(path);
+

@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import {
-  canApplyDeferred, CHECK_EVERY_MS, isRealUpdate, onUpdateFound, shouldCheck, takesOverLink, TOAST_MS, UPDATED_FLAG,
+  canApplyDeferred, CHECK_EVERY_MS, isRealUpdate, isTopicPath, onUpdateFound, shouldCheck, takesOverLink, TOAST_MS, UPDATED_FLAG,
 } from "~/lib/pwaUpdate";
 
 /* PWA 자동 업데이트 (v2.4.1)
@@ -76,6 +76,10 @@ export function usePWAUpdate(){
     document.addEventListener("visibilitychange", onVisibility);
     document.addEventListener("click", onClick, true);
     const timer = setInterval(() => { if(document.visibilityState === "visible") check(); }, CHECK_EVERY_MS);
+
+    /* v2.4.2: 주제를 새로고침·주소 입력처럼 전체 페이지로 열면 데이터가 HTML 안에 있어 .data를 따로 받지 않는다
+       그러면 오프라인에서 열리지 않으므로, 서비스 워커가 제어 중일 때 이 주제의 .data를 한 번 받아 저장되게 한다 */
+    if(hadController && navigator.onLine && isTopicPath(location.pathname)) fetch(`${location.pathname}.data`).catch(() => { /* 다음에 열 때 다시 */ });
 
     // 등록 자체가 첫 확인이다
     import("workbox-window")

@@ -188,6 +188,8 @@ test.describe("웹앱 동작", () => {
     // 이전 버튼까지 내려갔으므로 두 번째 주제도 끝까지 본 것
     await press(page, page.locator(".pager a[rel=prev]"));
     await expect(page).toHaveURL(/\/basic\/greet$/);
+    // 마지막으로 본 주제가 저장된 뒤에 넘어간다 (주소는 렌더링보다 먼저 바뀔 수 있다)
+    await expect.poll(() => page.evaluate(() => localStorage.getItem("tri.last"))).toBe("/basic/greet");
 
     // 목록에 완료 표시, 이어서 보기는 마지막으로 연 주제
     await page.goto("/basic"); await hydrated(page);
